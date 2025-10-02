@@ -47,3 +47,13 @@
   border-radius: 1rem;
   background-color: goldenrod;
 }
+
+.populate-db-btn {
+  height: 40px;
+  width: 140px;
+  border-radius: 5px;
+  position: absolute;
+  right: 10px;
+  bottom: 60px;
+  z-index: 101;
+}

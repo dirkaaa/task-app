@@ -49,6 +49,13 @@ export class TaskListComponent implements OnInit {
   offset = 0;
   numberOfResults = 0;
 
+  async populateDB() {
+    if (this.users.length > 0) {
+      await this.taskService.populateDB(this.users[0]);
+      await this.searchTasks();
+    }
+  }
+
   constructor(
     private fb: FormBuilder,
     private taskService: TaskService,

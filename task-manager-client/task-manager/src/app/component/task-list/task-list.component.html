@@ -151,3 +151,10 @@
     <mat-icon>add</mat-icon>
     Create Task
 </button>
+
+@if(!loading && tasks.length === 0){
+<button mat-fab color="primary" class="populate-db-btn" (click)="populateDB()">
+    <mat-icon>auto_fix_high</mat-icon>
+    Populate DB
+</button>
+}
