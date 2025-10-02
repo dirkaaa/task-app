@@ -39,7 +39,7 @@ Logs out the current user.
 
 ### User Endpoints
 
-#### POST `/api/users`
+#### POST `/api/users/register`
 **Description:**  
 Create a new user.
 
@@ -169,6 +169,7 @@ Delete a task by its ID.
 ## Data Model
 
 The task Model class:
+-   id: long
 -   description: String
 -   creator: User
 -   assignee: User (can be null)
@@ -176,11 +177,16 @@ The task Model class:
 -   createdAt: LocalDate
 -   dueDate: LocalDate
 
+The User Model class:
+-   id: long
+-   username: String
+-   password: String (Is only stored after hashing)
+
 I also created a Data Transfer Object for the User class, which does not contain the password property. This way it can be safely sent to the client.
 
 ## Persistence
 
-I am using the embedded (in-file) H2 database, because it's a lightweight but functional enough database for this assignment. If needed, it can be replaced by any other database by modifying the `spring.datasource.url` property in `application.properties`.
+I am using the embedded (in-file) H2 database, because it's a lightweight but functional enough database for this assignment. If needed, it can be replaced by any other database by modifying the `spring.datasource.url` property in `application.properties` and adding the corresponding Driver class.
 
 When starting the application, a `CommandLineRunner` creates a default 'admin' user if the user table is empty.
 
@@ -206,7 +212,7 @@ My custom exception classes are individually mapped to responses with a fitting 
 
 I used it generate code: I generated some controller and service methods and most of the tests on the backend and most of the components and services on the frontend. I also generated the documentation for most endpoints.
 
-propts:
+prompts:
 
 #### backend:
 
