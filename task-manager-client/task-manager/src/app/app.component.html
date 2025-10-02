@@ -1,5 +1,10 @@
 <mat-toolbar color="primary">
-  <span><a routerLink="/" class="mat-body-1 no-style-link">Task Manager</a></span>
+  <span style="gap: 5px; display: flex; flex-direction: row; justify-content: center; width: fit-content;">
+      <a mat-button routerLink="/" class="mat-body-1 no-style-link" style="margin: 0px">Task Manager</a>
+    @if(isLoggedIn()){
+      <a mat-button routerLink="/tasks">Tasks</a>
+    }
+  </span>
   @if(!isLoggedIn()){
   <span>
     <a mat-button routerLink="/login">Login</a>
