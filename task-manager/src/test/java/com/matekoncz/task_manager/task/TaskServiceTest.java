@@ -5,10 +5,11 @@ import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.model.SearchResult;
 import com.matekoncz.task_manager.repository.TaskRepository;
-import com.matekoncz.task_manager.service.TaskService;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.task.SearchResult;
+import com.matekoncz.task_manager.service.task.TaskService;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

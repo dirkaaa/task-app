@@ -1,10 +1,10 @@
 package com.matekoncz.task_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matekoncz.task_manager.model.SearchResult;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.service.TaskService;
+import com.matekoncz.task_manager.service.task.SearchResult;
+import com.matekoncz.task_manager.service.task.TaskService;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 

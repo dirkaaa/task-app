@@ -1,8 +1,8 @@
-package com.matekoncz.task_manager.service;
+package com.matekoncz.task_manager.service.task;
 
-import com.matekoncz.task_manager.model.SearchResult;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.repository.TaskRepository;
+import com.matekoncz.task_manager.service.user.UserService;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 

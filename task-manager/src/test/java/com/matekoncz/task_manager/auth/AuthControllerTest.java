@@ -3,9 +3,10 @@ package com.matekoncz.task_manager.auth;
 import com.matekoncz.task_manager.TaskManagerIntegrationTest;
 import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
-import com.matekoncz.task_manager.model.Credentials;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.user.Credentials;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

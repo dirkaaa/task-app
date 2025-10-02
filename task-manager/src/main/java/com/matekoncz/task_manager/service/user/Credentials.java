@@ -1,4 +1,6 @@
-package com.matekoncz.task_manager.model;
+package com.matekoncz.task_manager.service.user;
+
+import com.matekoncz.task_manager.model.User;
 
 public class Credentials {
     private String username;

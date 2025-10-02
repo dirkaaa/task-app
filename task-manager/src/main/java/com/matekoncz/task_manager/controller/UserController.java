@@ -3,7 +3,8 @@ package com.matekoncz.task_manager.controller;
 import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

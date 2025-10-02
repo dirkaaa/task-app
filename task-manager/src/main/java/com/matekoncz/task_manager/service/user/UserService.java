@@ -1,4 +1,4 @@
-package com.matekoncz.task_manager.service;
+package com.matekoncz.task_manager.service.user;
 
 import com.matekoncz.task_manager.exceptions.auth.WrongUsernameOrPasswordException;
 import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;

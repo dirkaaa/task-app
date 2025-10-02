@@ -1,6 +1,8 @@
-package com.matekoncz.task_manager.model;
+package com.matekoncz.task_manager.service.task;
 
 import java.util.List;
+
+import com.matekoncz.task_manager.model.Task;
 
 public class SearchResult {
     private long numberOfResults;

@@ -2,13 +2,14 @@ package com.matekoncz.task_manager.task;
 
 import com.matekoncz.task_manager.TaskManagerIntegrationTest;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
-import com.matekoncz.task_manager.model.Credentials;
-import com.matekoncz.task_manager.model.SearchResult;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.service.TaskService;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.task.SearchResult;
+import com.matekoncz.task_manager.service.task.TaskService;
+import com.matekoncz.task_manager.service.user.Credentials;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
                     null,
                     "desc" + i,
                     Status.values()[i % Status.values().length],
-                    (i % 2 == 0) ? assignee : null,
+                    (i % 2 == 0) ? assignee : creator,
                     creator,
                     LocalDate.of(2025, 10, (i % 28) + 1),
                     LocalDate.of(2025, 9, (i % 28) + 1));

@@ -6,7 +6,8 @@ import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.User;
 import com.matekoncz.task_manager.repository.UserRepository;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.boot.test.context.SpringBootTest;

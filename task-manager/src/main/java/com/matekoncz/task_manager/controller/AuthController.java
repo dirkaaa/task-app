@@ -3,9 +3,10 @@ package com.matekoncz.task_manager.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matekoncz.task_manager.exceptions.auth.WrongUsernameOrPasswordException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
-import com.matekoncz.task_manager.model.Credentials;
 import com.matekoncz.task_manager.model.User;
-import com.matekoncz.task_manager.service.UserService;
+import com.matekoncz.task_manager.service.user.Credentials;
+import com.matekoncz.task_manager.service.user.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
