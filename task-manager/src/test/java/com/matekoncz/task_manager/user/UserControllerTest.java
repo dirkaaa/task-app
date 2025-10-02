@@ -12,7 +12,6 @@ import com.matekoncz.task_manager.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
 import java.util.List;
@@ -26,9 +25,6 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
 
     @Autowired
     private TaskService taskService;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     private HttpHeaders headers;
 

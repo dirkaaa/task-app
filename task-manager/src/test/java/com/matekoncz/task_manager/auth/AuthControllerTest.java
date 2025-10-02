@@ -10,7 +10,6 @@ import com.matekoncz.task_manager.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,9 +18,6 @@ public class AuthControllerTest extends TaskManagerIntegrationTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @BeforeEach
     void setUp() throws UserCanNotBeCreatedException, UserNameIsNotUniqueException {
