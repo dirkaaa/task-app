@@ -1,0 +1,49 @@
+<div class="formcontainer">
+    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+        <h2>Sign Up</h2>
+        <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" autocomplete="username" />
+            @if(signUpForm.get('username')?.hasError('required')){
+            <mat-error>
+                Username is required
+            </mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="new-password" />
+            @if(signUpForm.get('password')?.hasError('required')){
+            <mat-error>
+                Password is required
+            </mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if(signUpForm.get('confirmPassword')?.hasError('required')){
+            <mat-error>
+                Confirm password is required
+            </mat-error>
+            }
+            @if(signUpForm.hasError('passwordMismatch') && signUpForm.get('confirmPassword')?.touched){
+            <mat-error>
+                Passwords do not match
+            </mat-error>
+            }
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+            Sign Up
+        </button>
+
+        @if(errorMessage){
+        <div class="error-message">
+            {{ errorMessage }}
+        </div>
+        }
+    </form>
+</div>

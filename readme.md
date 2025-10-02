@@ -31,4 +31,10 @@
 
 2. open a terminal and run `npm start`
 
+## Log in the app
+
+There is a default user with the credentials username = "admin" password = "admin".
+
+Other users can be created as well.
+
 ####  (( the documentation is in the 'documentation.md' file ))

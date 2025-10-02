@@ -28,7 +28,7 @@ public class UserController {
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody String userJson)
             throws IOException, UserCanNotBeCreatedException, UserNameIsNotUniqueException {
         User user = objectMapper.readValue(userJson, User.class);

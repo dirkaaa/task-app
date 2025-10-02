@@ -50,7 +50,7 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         User user = new User(null, "testuser", "password");
         HttpEntity<User> entity = new HttpEntity<>(user, headers);
 
-        ResponseEntity<User> response = restTemplate.postForEntity("/api/users", entity, User.class);
+        ResponseEntity<User> response = restTemplate.postForEntity("/api/users/register", entity, User.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

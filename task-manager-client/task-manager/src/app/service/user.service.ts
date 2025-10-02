@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { User } from '../model/User';
+import { UserRegistrationDTO } from '../model/UserRegistrationDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ export class UserService {
     return this.apiService.get<User[]>('/api/users/all');
   }
 
-  createUser(user: User): Promise<User> {
-    return this.apiService.post<User>('/api/users', user);
+  createUser(user: UserRegistrationDTO): Promise<User> {
+    return this.apiService.post<User>('/api/users/register', user);
   }
 }
