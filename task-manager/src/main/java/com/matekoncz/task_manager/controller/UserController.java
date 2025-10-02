@@ -29,16 +29,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody String userJson)
+    public ResponseEntity<com.matekoncz.task_manager.model.UserDto> createUser(@RequestBody String userJson)
             throws IOException, UserCanNotBeCreatedException, UserNameIsNotUniqueException {
         User user = objectMapper.readValue(userJson, User.class);
         User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(userService.toUserDto(createdUser));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<com.matekoncz.task_manager.model.UserDto>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.toUserDtoList(users));
     }
 }

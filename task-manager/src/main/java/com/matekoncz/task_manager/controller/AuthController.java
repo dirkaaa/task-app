@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matekoncz.task_manager.exceptions.auth.WrongUsernameOrPasswordException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.User;
+import com.matekoncz.task_manager.model.UserDto;
 import com.matekoncz.task_manager.service.user.Credentials;
 import com.matekoncz.task_manager.service.user.UserService;
 
@@ -37,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(HttpServletRequest request, @RequestBody String credentialsJson)
+    public ResponseEntity<UserDto> login(HttpServletRequest request, @RequestBody String credentialsJson)
             throws IOException, UserNotFoundException, WrongUsernameOrPasswordException {
         Credentials credentials = objectMapper.readValue(credentialsJson, Credentials.class);
         User user = userService.authenticate(credentials.getUsername(), credentials.getPassword());
@@ -51,7 +52,7 @@ public class AuthController {
 
         request.getSession(true).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.toUserDto(user));
     }
 
     @DeleteMapping("/logout")

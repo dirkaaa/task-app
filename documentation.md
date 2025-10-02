@@ -95,7 +95,7 @@ Get tasks by filter, sorting, and paging.
 
 **Query Parameters:**
 - `offset` (int, default: 0): Paging offset.
-- `orderBy` (string, default: ""): Field to sort by (`dueate`, `status`).
+- `orderBy` (string, default: ""): Field to sort by (`dueDate`, `status`).
 - `ascending` (boolean, default: true): Sort direction.
 
 **Request Body:**  
@@ -176,6 +176,8 @@ The task Model class:
 -   createdAt: LocalDate
 -   dueDate: LocalDate
 
+I also created a Data Transfer Object for the User class, which does not contain the password property. This way it can be safely sent to the client.
+
 ## Persistence
 
 I am using the embedded (in-file) H2 database, because it's a lightweight but functional enough database for this assignment. If needed, it can be replaced by any other database by modifying the `spring.datasource.url` property in `application.properties`.
@@ -200,7 +202,7 @@ My custom exception classes are individually mapped to responses with a fitting 
 
 ## AI Tools
 
-### Copilot GPT-4.1
+### Copilot GPT-4.1 Agent + Ask mode
 
 I used it generate code: I generated some controller and service methods and most of the tests on the backend and most of the components and services on the frontend. I also generated the documentation for most endpoints.
 
@@ -246,11 +248,17 @@ propts:
 
 - Generate edit-task component using Angular Material. this component can be used to create a new task, or edit an existing one. It uses TaskService to communicate with the api. It also needs  UserService to list users for the the assignee field. The field id is not shown. creator is shown for existing tasks but cannot be edited. After successful update or creation, navigate to TaskListComponent.
 
+- Generate code for Sign up component. The form consists of a username, a password and a confirm password field. All fields are required, the two passwords are validated. If the sign up is successful, navigate to login page. If not, display an error message under the form. Create html and css in a similar way as in login component.
+
+- When submitting the form and the password and the confirm password don't match, an error message should be displayed.
+
+- Create a DTO class for the User model class. It should contain all User fields except password. Use it when sending User details through Rest endpoints. Update the related test, service and controller methods.
+
 #### documentation:
 
 - In documentation.md, write documentation for authentication, user and task related endpoints, similar to the one I already wrote about the login endpoint.
 
-### ChatGpt
+### ChatGpt GPT-5
 
 I used it to ask broad questions about topics I am not familiar with: like authentication with Spring Security and ways to populate the database when starting a Spring application.
 

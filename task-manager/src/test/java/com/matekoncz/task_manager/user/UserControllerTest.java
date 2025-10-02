@@ -5,6 +5,7 @@ import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.User;
+import com.matekoncz.task_manager.model.UserDto;
 import com.matekoncz.task_manager.service.task.TaskService;
 import com.matekoncz.task_manager.service.user.Credentials;
 import com.matekoncz.task_manager.service.user.UserService;
@@ -46,7 +47,7 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         User user = new User(null, "testuser", "password");
         HttpEntity<User> entity = new HttpEntity<>(user, headers);
 
-        ResponseEntity<User> response = restTemplate.postForEntity("/api/users/register", entity, User.class);
+        ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/register", entity, UserDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -62,7 +63,7 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         userService.createUser(new User(null, "user2", "pass2"));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<User[]> response = restTemplate.exchange("/api/users/all", HttpMethod.GET, entity, User[].class);
+        ResponseEntity<UserDto[]> response = restTemplate.exchange("/api/users/all", HttpMethod.GET, entity, UserDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -73,4 +74,27 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         assertTrue(users.stream().anyMatch(u -> u.getUsername().equals("creator")));
         assertTrue(users.stream().anyMatch(u -> u.getUsername().equals("user2")));
     }
+
+        @Test
+        void shouldNotSerializePasswordInResponse() throws UserNotFoundException {
+            User user = new User(null, "jsonuser", "jsonpass");
+            HttpEntity<User> entity = new HttpEntity<>(user, headers);
+            ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/register", entity, UserDto.class);
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals("jsonuser", response.getBody().getUsername());
+            // No password field in UserDto, so nothing to check
+        }
+
+    @Test
+    void shouldDeserializePasswordFromRequest() throws UserNotFoundException {
+        User user = new User(null, "jsonuser2", "jsonpass2");
+        HttpEntity<User> entity = new HttpEntity<>(user, headers);
+        ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/register", entity, UserDto.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        User created = userService.getUserByUsername("jsonuser2");
+        assertNotNull(created);
+        assertNotNull(created.getPassword(), "Password should be deserialized and stored");
+    }
+
 }

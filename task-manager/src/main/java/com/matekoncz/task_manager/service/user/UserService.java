@@ -5,6 +5,7 @@ import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.User;
+import com.matekoncz.task_manager.model.UserDto;
 import com.matekoncz.task_manager.repository.UserRepository;
 
 import java.util.List;
@@ -60,6 +61,14 @@ public class UserService {
         } catch (UserNotFoundException e) {
             throw new WrongUsernameOrPasswordException();
         }
+    }
+
+    public UserDto toUserDto(User user) {
+        return new UserDto(user.getId(), user.getUsername());
+    }
+
+    public List<UserDto> toUserDtoList(List<User> users) {
+        return users.stream().map(this::toUserDto).toList();
     }
 
     public List<User> getAllUsers() {
