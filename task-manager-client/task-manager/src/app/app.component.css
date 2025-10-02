@@ -1,25 +1,25 @@
 mat-toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    border-radius: 0;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-radius: 0;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
 }
 
 .no-style-link {
-  color: inherit;       
+  color: inherit;
   text-decoration: none;
-  cursor: pointer;       
+  cursor: pointer;
 }
 
-.formcontainer{
-    background-color: goldenrod;
-    margin: 3rem;
-    border-radius: 1rem;
-    padding: 3rem;
-    display: flex;
-    direction: row;
-    justify-content: center;
+.formcontainer {
+  background-color: goldenrod;
+  margin: 3rem;
+  border-radius: 1rem;
+  padding: 3rem;
+  display: flex;
+  direction: row;
+  justify-content: center;
 }

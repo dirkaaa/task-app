@@ -1,8 +1,8 @@
 <mat-toolbar color="primary">
   <span style="gap: 5px; display: flex; flex-direction: row; justify-content: center; width: fit-content;">
-      <a mat-button routerLink="/" class="mat-body-1 no-style-link" style="margin: 0px">Task Manager</a>
+    <a mat-button routerLink="/" class="mat-body-1 no-style-link" style="margin: 0px">Task Manager</a>
     @if(isLoggedIn()){
-      <a mat-button routerLink="/tasks">Tasks</a>
+    <a mat-button routerLink="/tasks">Tasks</a>
     }
   </span>
   @if(!isLoggedIn()){
@@ -11,10 +11,10 @@
   </span>
   }
   @if(isLoggedIn()){
-    <span>
-      Logged in as <b>{{getCurrentUserName()}}</b>
-      <a mat-button (click)="logout()">Logout</a>
-    </span>
+  <span>
+    Logged in as <b>{{getCurrentUserName()}}</b>
+    <a mat-button (click)="logout()">Logout</a>
+  </span>
   }
 </mat-toolbar>
 

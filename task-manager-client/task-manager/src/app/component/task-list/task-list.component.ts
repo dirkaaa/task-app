@@ -35,11 +35,10 @@ import { MatRadioModule } from '@angular/material/radio';
     MatTableModule,
     MatIconModule,
     MatNativeDateModule,
-    MatRadioModule
-  ]
+    MatRadioModule,
+  ],
 })
 export class TaskListComponent implements OnInit {
-
   searchForm: FormGroup;
   users: User[] = [];
   tasks: Task[] = [];
@@ -61,7 +60,7 @@ export class TaskListComponent implements OnInit {
       status: [''],
       description: [''],
       orderBy: [''],
-      ascending: ['true']
+      ascending: ['true'],
     });
   }
 
@@ -72,18 +71,32 @@ export class TaskListComponent implements OnInit {
   }
 
   async searchTasks() {
-    console.log('Searching tasks with current form values:', this.searchForm.value);
+    console.log(
+      'Searching tasks with current form values:',
+      this.searchForm.value
+    );
     this.loading = true;
     const filter: Task = {
       assignee: this.searchForm.value.assignee,
       creator: this.searchForm.value.creator,
-      dueDate: this.searchForm.value.dueDate == "" ? null : this.searchForm.value.dueDate,
-      status: this.searchForm.value.status == "" ? null : this.searchForm.value.status,
+      dueDate:
+        this.searchForm.value.dueDate == ''
+          ? null
+          : this.searchForm.value.dueDate,
+      status:
+        this.searchForm.value.status == ''
+          ? null
+          : this.searchForm.value.status,
       description: this.searchForm.value.description,
       createdAt: '',
     };
     console.log('Searching tasks with filter:', filter);
-    const result: SearchResult = await this.taskService.getTenTasks(this.offset, filter, this.searchForm.value.orderBy, this.searchForm.value.ascending);
+    const result: SearchResult = await this.taskService.getTenTasks(
+      this.offset,
+      filter,
+      this.searchForm.value.orderBy,
+      this.searchForm.value.ascending
+    );
     this.tasks = result.tasks;
     this.numberOfResults = result.numberOfResults;
     this.loading = false;
@@ -101,11 +114,11 @@ export class TaskListComponent implements OnInit {
   }
 
   createTask() {
-    this.router.navigate(['/edit-task'])
+    this.router.navigate(['/edit-task']);
   }
 
   nextPage() {
-    if ((this.offset + 10) < this.numberOfResults) {
+    if (this.offset + 10 < this.numberOfResults) {
       this.offset += 10;
       this.searchTasks();
     }
@@ -125,7 +138,7 @@ export class TaskListComponent implements OnInit {
       status: '',
       description: '',
       orderBy: '',
-      ascending: ['true']
+      ascending: ['true'],
     });
     this.offset = 0;
     this.searchTasks();

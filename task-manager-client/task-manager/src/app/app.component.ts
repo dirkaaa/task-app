@@ -7,13 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterModule,
-    MatToolbarModule,
-    MatButtonModule
-  ],
+  imports: [RouterModule, MatToolbarModule, MatButtonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
   constructor(public authService: AuthService, private router: Router) {}

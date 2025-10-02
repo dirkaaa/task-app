@@ -1,132 +1,137 @@
 <div class="task-list-container">
-  <form [formGroup]="searchForm" (ngSubmit)="searchTasks()" class="search-form">
-    <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>Assignee</mat-label>
-        <mat-select formControlName="assignee">
-          <mat-option [value]="null">Any</mat-option>
-          @for(user of users; track user) {
-            <mat-option [value]="user">{{ user.username }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <form [formGroup]="searchForm" (ngSubmit)="searchTasks()" class="search-form">
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Assignee</mat-label>
+                <mat-select formControlName="assignee">
+                    <mat-option [value]="null">Any</mat-option>
+                    @for(user of users; track user) {
+                    <mat-option [value]="user">{{ user.username }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Creator</mat-label>
-        <mat-select formControlName="creator">
-          <mat-option [value]="null">Any</mat-option>
-          @for(user of users; track user) {
-            <mat-option [value]="user">{{ user.username }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Creator</mat-label>
+                <mat-select formControlName="creator">
+                    <mat-option [value]="null">Any</mat-option>
+                    @for(user of users; track user) {
+                    <mat-option [value]="user">{{ user.username }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Due Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="dueDate">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Due Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="dueDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option value="">Any</mat-option>
-          @for (status of statuses; track status) {
-            <mat-option [value]="status">{{ status }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    <mat-option value="">Any</mat-option>
+                    @for (status of statuses; track status) {
+                    <mat-option [value]="status">{{ status }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description" />
-      </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <input matInput formControlName="description" />
+            </mat-form-field>
 
-    </div>
-    <div class="form-row">
-      <span style="display: flex; gap: 5px;">
-      <mat-form-field appearance="outline">
-        <mat-label>Order by</mat-label>
-        <mat-select formControlName="orderBy">
-          <mat-option value="">nothing</mat-option>
-          <mat-option value="dueDate">due date</mat-option>
-          <mat-option value="status">status</mat-option>
-        </mat-select>
-      </mat-form-field>
+        </div>
+        <div class="form-row">
+            <span style="display: flex; gap: 5px;">
+                <mat-form-field appearance="outline">
+                    <mat-label>Order by</mat-label>
+                    <mat-select formControlName="orderBy">
+                        <mat-option value="">nothing</mat-option>
+                        <mat-option value="dueDate">due date</mat-option>
+                        <mat-option value="status">status</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-        <mat-radio-group formControlName="ascending">
-            <mat-radio-button value="true">Ascending</mat-radio-button>
-            <mat-radio-button value="false">Descending</mat-radio-button>
-        </mat-radio-group>
-        </span>
+                <mat-radio-group formControlName="ascending">
+                    <mat-radio-button value="true">Ascending</mat-radio-button>
+                    <mat-radio-button value="false">Descending</mat-radio-button>
+                </mat-radio-group>
+            </span>
 
-        <span style="display: flex; gap: 5px;">
-            <button mat-raised-button color="primary" type="submit" [disabled]="loading">Search</button>
-            <button mat-raised-button color="secondary" (click)="clearFilter()">Clear</button>
-        </span>
-    </div>
-  </form>
+            <span style="display: flex; gap: 5px;">
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading">Search</button>
+                <button mat-raised-button color="secondary" (click)="clearFilter()">Clear</button>
+            </span>
+        </div>
+    </form>
 </div>
 
-  <table mat-table [dataSource]="tasks" class="mat-elevation-z8">
+<table mat-table [dataSource]="tasks" class="mat-elevation-z8">
     <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>Description</th>
-      <td mat-cell *matCellDef="let task">{{ task.description }}</td>
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let task">{{ task.description }}</td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let task">{{ task.status }}</td>
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let task">{{ task.status }}</td>
     </ng-container>
 
     <ng-container matColumnDef="assignee">
-      <th mat-header-cell *matHeaderCellDef>Assignee</th>
-      <td mat-cell *matCellDef="let task">{{ task.assignee?.username || '-' }}</td>
+        <th mat-header-cell *matHeaderCellDef>Assignee</th>
+        <td mat-cell *matCellDef="let task">{{ task.assignee?.username || '-' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="creator">
-      <th mat-header-cell *matHeaderCellDef>Creator</th>
-      <td mat-cell *matCellDef="let task">{{ task.creator?.username || '-' }}</td>
+        <th mat-header-cell *matHeaderCellDef>Creator</th>
+        <td mat-cell *matCellDef="let task">{{ task.creator?.username || '-' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="dueDate">
-      <th mat-header-cell *matHeaderCellDef>Due Date</th>
-      <td mat-cell *matCellDef="let task">{{ task.dueDate }}</td>
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let task">{{ task.dueDate }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
-      <th mat-header-cell *matHeaderCellDef>Created At</th>
-      <td mat-cell *matCellDef="let task">{{ task.createdAt }}</td>
+        <th mat-header-cell *matHeaderCellDef>Created At</th>
+        <td mat-cell *matCellDef="let task">{{ task.createdAt }}</td>
     </ng-container>
 
     <ng-container matColumnDef="edit">
-      <th mat-header-cell *matHeaderCellDef>Edit</th>
-      <td mat-cell *matCellDef="let task">
-        <a mat-button color="accent" (click)="editTask(task.id)">Edit</a>
-      </td>
+        <th mat-header-cell *matHeaderCellDef>Edit</th>
+        <td mat-cell *matCellDef="let task">
+            <a mat-button color="accent" (click)="editTask(task.id)">Edit</a>
+        </td>
     </ng-container>
 
     <ng-container matColumnDef="delete">
-      <th mat-header-cell *matHeaderCellDef>Delete</th>
-      <td mat-cell *matCellDef="let task">
-        <a mat-button color="warn" (click)="deleteTask(task.id)">
-          <mat-icon>delete</mat-icon> Delete
-        </a>
-      </td>
+        <th mat-header-cell *matHeaderCellDef>Delete</th>
+        <td mat-cell *matCellDef="let task">
+            <a mat-button color="warn" (click)="deleteTask(task.id)">
+                <mat-icon>delete</mat-icon> Delete
+            </a>
+        </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['description', 'status', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete']"></tr>
-    <tr mat-row style="font-size: 14px; height: 14px;" *matRowDef="let row; columns: ['description', 'status', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete'];"></tr>
-  </table>
-  <div class="centered">
+    <tr mat-header-row
+        *matHeaderRowDef="['description', 'status', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete']">
+    </tr>
+    <tr mat-row style="font-size: 14px; height: 14px;"
+        *matRowDef="let row; columns: ['description', 'status', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete'];">
+    </tr>
+</table>
+<div class="centered">
     <div class="buttonContainer">
         <button mat-raised-button color="primary" (click)="previousPage()" [disabled]="offset === 0">Previous</button>
-        <button mat-raised-button color="primary" (click)="nextPage()" [disabled]="(offset + 10) >= numberOfResults">Next</button>
+        <button mat-raised-button color="primary" (click)="nextPage()"
+            [disabled]="(offset + 10) >= numberOfResults">Next</button>
     </div>
-  </div>
+</div>
 
 <button mat-fab color="primary" class="create-task-btn" (click)="createTask()">
-  <mat-icon>add</mat-icon>
-  Create Task
+    <mat-icon>add</mat-icon>
+    Create Task
 </button>

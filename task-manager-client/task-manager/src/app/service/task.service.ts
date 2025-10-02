@@ -4,7 +4,7 @@ import { Task } from '../model/Task';
 import { SearchResult } from '../model/SearchResult';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TaskService {
   constructor(private apiService: ApiService) {}
@@ -13,9 +13,20 @@ export class TaskService {
     return this.apiService.get<Task[]>('/api/tasks/all');
   }
 
-  getTenTasks(offset: number, filter: Task, field?: string, ascending?: boolean): Promise<SearchResult> {
-    let orderString = (field && field.length != 0) ? `&orderBy=${field}&ascending=${ascending}`:'';
-    return this.apiService.post<SearchResult>('/api/tasks/all?offset=' + offset+orderString,filter);
+  getTenTasks(
+    offset: number,
+    filter: Task,
+    field?: string,
+    ascending?: boolean
+  ): Promise<SearchResult> {
+    let orderString =
+      field && field.length != 0
+        ? `&orderBy=${field}&ascending=${ascending}`
+        : '';
+    return this.apiService.post<SearchResult>(
+      '/api/tasks/all?offset=' + offset + orderString,
+      filter
+    );
   }
 
   getTaskById(id: number): Promise<Task> {

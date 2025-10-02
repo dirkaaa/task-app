@@ -4,7 +4,7 @@ import { Credentials } from '../model/Credentials';
 import { User } from '../model/User';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   constructor(private apiService: ApiService) {}
@@ -23,6 +23,6 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     const userJson = localStorage.getItem('user');
-    return userJson ? JSON.parse(userJson) as User : null;
+    return userJson ? (JSON.parse(userJson) as User) : null;
   }
 }

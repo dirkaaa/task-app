@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TaskService } from '../../service/task.service';
 import { UserService } from '../../service/user.service';
@@ -28,8 +33,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatInputModule,
     MatButtonModule,
     MatDatepickerModule,
-    MatNativeDateModule
-  ]
+    MatNativeDateModule,
+  ],
 })
 export class EditTaskComponent implements OnInit {
   taskForm: FormGroup;
@@ -52,7 +57,7 @@ export class EditTaskComponent implements OnInit {
       assignee: [null],
       creator: [{ value: '', disabled: true }],
       dueDate: ['', Validators.required],
-      createdAt: ['']
+      createdAt: [''],
     });
   }
 
@@ -69,7 +74,7 @@ export class EditTaskComponent implements OnInit {
         assignee: task.assignee,
         creator: task.creator?.username,
         dueDate: task.dueDate ? new Date(task.dueDate) : '',
-        createdAt: task.createdAt
+        createdAt: task.createdAt,
       });
     }
   }
@@ -87,12 +92,15 @@ export class EditTaskComponent implements OnInit {
       assignee: formValue.assignee,
       creator: this.creator ?? undefined,
       dueDate: this.formatLocalDate(formValue.dueDate),
-      createdAt: formValue.createdAt
+      createdAt: formValue.createdAt,
     };
     console.log('Submitting task:', task);
     try {
       if (this.isEditMode && this.route.snapshot.paramMap.get('id')) {
-        await this.taskService.updateTask(+this.route.snapshot.paramMap.get('id')!, task);
+        await this.taskService.updateTask(
+          +this.route.snapshot.paramMap.get('id')!,
+          task
+        );
       } else {
         console.log('Creating new task:', task);
         await this.taskService.createTask(task);
@@ -104,9 +112,9 @@ export class EditTaskComponent implements OnInit {
   }
 
   formatLocalDate(d: Date): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 }

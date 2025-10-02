@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { User } from '../model/User';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   constructor(private apiService: ApiService) {}
