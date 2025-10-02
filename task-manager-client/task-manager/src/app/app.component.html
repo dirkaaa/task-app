@@ -1,0 +1,16 @@
+<mat-toolbar color="primary">
+  <span><a routerLink="/" class="mat-body-1 no-style-link">Task Manager</a></span>
+  @if(!isLoggedIn()){
+  <span>
+    <a mat-button routerLink="/login">Login</a>
+  </span>
+  }
+  @if(isLoggedIn()){
+    <span>
+      Logged in as <b>{{getCurrentUserName()}}</b>
+      <a mat-button (click)="logout()">Logout</a>
+    </span>
+  }
+</mat-toolbar>
+
+<router-outlet></router-outlet>

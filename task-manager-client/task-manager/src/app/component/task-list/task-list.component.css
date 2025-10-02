@@ -1,0 +1,49 @@
+.task-list-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 5px;
+  padding: 5px;
+  border-radius: 1rem;
+  background-color: goldenrod;
+}
+
+.form-row{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.create-task-btn {
+  position: absolute;
+  height: 40px;
+  width: 140px;
+  border-radius: 5px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.centered {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.buttonContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px;
+  border-radius: 1rem;
+  background-color: goldenrod;
+}
