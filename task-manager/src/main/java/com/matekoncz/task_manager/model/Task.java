@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn;
 
 @Entity
 public class Task {
+    public static final String Priority = null;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +36,10 @@ public class Task {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private Priority priority;
+
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
@@ -44,7 +50,7 @@ public class Task {
     }
 
     public Task(Long id, String description, Status status, User assignee, User creator, LocalDate dueDate,
-            LocalDate createdAt) {
+            LocalDate createdAt, Priority priority) {
         this.id = id;
         this.description = description;
         this.status = status;
@@ -52,6 +58,7 @@ public class Task {
         this.creator = creator;
         this.dueDate = dueDate;
         this.createdAt = createdAt;
+        this.priority = priority;
     }
 
     public Long getId() {
@@ -108,5 +115,13 @@ public class Task {
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
     }
 }

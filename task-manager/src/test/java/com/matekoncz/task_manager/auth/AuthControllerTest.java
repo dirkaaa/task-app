@@ -55,6 +55,6 @@ public class AuthControllerTest extends TaskManagerIntegrationTest {
         ResponseEntity<Void> logoutResponse = restTemplate.exchange("/api/auth/logout", HttpMethod.DELETE, entity,
                 Void.class);
 
-        assertEquals(HttpStatus.OK, logoutResponse.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, logoutResponse.getStatusCode());
     }
 }

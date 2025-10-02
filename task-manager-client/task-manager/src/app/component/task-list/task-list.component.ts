@@ -17,6 +17,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
+import { Priority } from '../../model/Priority';
 
 @Component({
   selector: 'app-task-list',
@@ -43,6 +44,7 @@ export class TaskListComponent implements OnInit {
   users: User[] = [];
   tasks: Task[] = [];
   statuses = Object.values(Status);
+  priorities = Object.values(Priority);
   loading = false;
   offset = 0;
   numberOfResults = 0;
@@ -58,6 +60,7 @@ export class TaskListComponent implements OnInit {
       creator: [null],
       dueDate: [''],
       status: [''],
+      priority: [''],
       description: [''],
       orderBy: [''],
       ascending: ['true'],
@@ -65,16 +68,11 @@ export class TaskListComponent implements OnInit {
   }
 
   async ngOnInit() {
-    console.log('TaskListComponent initialized');
     await this.searchTasks();
     this.users = await this.userService.getAllUsers();
   }
 
   async searchTasks() {
-    console.log(
-      'Searching tasks with current form values:',
-      this.searchForm.value
-    );
     this.loading = true;
     const filter: Task = {
       assignee: this.searchForm.value.assignee,
@@ -87,10 +85,13 @@ export class TaskListComponent implements OnInit {
         this.searchForm.value.status == ''
           ? null
           : this.searchForm.value.status,
+      priority:
+        this.searchForm.value.priority == ''
+          ? null
+          : this.searchForm.value.priority,
       description: this.searchForm.value.description,
       createdAt: '',
     };
-    console.log('Searching tasks with filter:', filter);
     const result: SearchResult = await this.taskService.getTenTasks(
       this.offset,
       filter,
@@ -136,6 +137,7 @@ export class TaskListComponent implements OnInit {
       creator: null,
       dueDate: '',
       status: '',
+      priority: '',
       description: '',
       orderBy: '',
       ascending: ['true'],

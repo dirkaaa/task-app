@@ -1,7 +1,6 @@
 <div class="formcontainer">
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
-        <h2>{{ isEditMode ? 'Edit Task' : 'Create Task' }}</h2>
-
+        <h2>{{ isEditMode() ? 'Edit Task' : 'Create Task' }}</h2>
         <mat-form-field appearance="outline" class="full-width">
             <mat-label>Description</mat-label>
             <input matInput formControlName="description" />
@@ -11,50 +10,68 @@
             </mat-error>
             }
         </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-                @for(status of statuses; track status){
-                <mat-option [value]="status">{{ status }}</mat-option>
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="limited">
+                <mat-label>Priority</mat-label>
+                <mat-select formControlName="priority">
+                    @for(priority of priorities; track priority){
+                    <mat-option [value]="priority">{{ priority }}</mat-option>
+                    }
+                </mat-select>
+                @if(taskForm.get('priority')?.hasError('required')){
+                <mat-error>
+                    Priority is required
+                </mat-error>
                 }
-            </mat-select>
-            @if(taskForm.get('status')?.hasError('required')){
-            <mat-error>
-                Status is required
-            </mat-error>
-            }
-        </mat-form-field>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Assignee</mat-label>
-            <mat-select formControlName="assignee">
-                <mat-option [value]="null">None</mat-option>
-                @for(user of users; track user){
-                <mat-option [value]="user">{{ user.username }}</mat-option>
+            <mat-form-field appearance="outline" class="limited">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    @for(status of statuses; track status){
+                    <mat-option [value]="status">{{ status }}</mat-option>
+                    }
+                </mat-select>
+                @if(taskForm.get('status')?.hasError('required')){
+                <mat-error>
+                    Status is required
+                </mat-error>
                 }
-            </mat-select>
-        </mat-form-field>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="limited">
+                <mat-label>Assignee</mat-label>
+                <mat-select formControlName="assignee">
+                    <mat-option [value]="null">None</mat-option>
+                    @for(user of users; track user){
+                    <mat-option [value]="user">{{ user.username }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width" *ngIf="isEditMode">
+            <mat-form-field appearance="outline" class="limited">
+                <mat-label>Due Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="dueDate" />
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                @if(taskForm.get('dueDate')?.hasError('required')){
+                <mat-error>
+                    Due date is required
+                </mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        @if(isEditMode()){
+        <mat-form-field appearance="outline" class="full-width">
             <mat-label>Creator</mat-label>
             <input matInput formControlName="creator" readonly />
         </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Due Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="dueDate" />
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            @if(taskForm.get('dueDate')?.hasError('required')){
-            <mat-error>
-                Due date is required
-            </mat-error>
-            }
-        </mat-form-field>
+        }
 
         <button mat-raised-button color="primary" type="submit" [disabled]="loading">
-            {{ isEditMode ? 'Update Task' : 'Create Task' }}
+            {{ isEditMode() ? 'Update Task' : 'Create Task' }}
         </button>
     </form>
 </div>

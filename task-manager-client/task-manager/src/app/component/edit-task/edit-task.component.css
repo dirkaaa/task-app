@@ -13,3 +13,14 @@ form {
   flex-direction: column;
   gap: 1rem;
 }
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.limited {
+  width: 180px;
+}

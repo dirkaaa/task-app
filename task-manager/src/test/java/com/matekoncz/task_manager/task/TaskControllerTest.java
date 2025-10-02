@@ -2,6 +2,7 @@ package com.matekoncz.task_manager.task;
 
 import com.matekoncz.task_manager.TaskManagerIntegrationTest;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
+import com.matekoncz.task_manager.model.Priority;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
@@ -60,14 +61,16 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
                     (i % 2 == 0) ? assignee : creator,
                     creator,
                     LocalDate.of(2025, 10, (i % 28) + 1),
-                    LocalDate.of(2025, 9, (i % 28) + 1));
+                    LocalDate.of(2025, 9, (i % 28) + 1),
+                    Priority.values()[i % Priority.values().length]);
             allTasks.add(taskService.createTask(t));
         }
     }
 
     @Test
     void shouldCreateTask() {
-        Task task = new Task(null, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now());
+        Task task = new Task(null, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC);
         HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
         ResponseEntity<Task> response = restTemplate.postForEntity("/api/tasks", entity, Task.class);
@@ -276,5 +279,42 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), hasSize(10));
         assertThat(response.getBody().getNumberOfResults(), is(25L));
+    }
+
+    @Test
+    void shouldFilterByPriority() {
+        Task filter = new Task();
+        filter.setPriority(Priority.HIGH);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
+
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("priority", is(Priority.HIGH))));
+    }
+
+    @Test
+    void shouldSortByPriorityAscending() {
+        Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
+
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=priority&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getPriority(), notNullValue());
+    }
+
+    @Test
+    void shouldSortByPriorityDescending() {
+        Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
+
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=priority&ascending=false", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getPriority(), notNullValue());
     }
 }

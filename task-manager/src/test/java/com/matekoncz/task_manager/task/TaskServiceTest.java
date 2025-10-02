@@ -2,6 +2,7 @@ package com.matekoncz.task_manager.task;
 
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
+import com.matekoncz.task_manager.model.Priority;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
@@ -24,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -56,17 +58,18 @@ public class TaskServiceTest {
                     (i % 2 == 0) ? assignee : null,
                     creator,
                     LocalDate.of(2025, 10, (i % 28) + 1),
-                    LocalDate.of(2025, 9, (i % 28) + 1));
+                    LocalDate.of(2025, 9, (i % 28) + 1),
+                    Priority.values()[i % Priority.values().length]);
             allTasks.add(t);
         }
     }
 
-    // --- Existing tests for CRUD ---
-
     @Test
     void shouldCreateTask() throws TaskCanNotBeCreatedException {
-        Task task = new Task(null, "desc", null, null, assignee, LocalDate.now(), LocalDate.now());
-        Task savedTask = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now());
+        Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC);
+        Task savedTask = new Task(1L, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC);
 
         when(taskRepository.save(ArgumentMatchers.any(Task.class))).thenReturn(savedTask);
 
@@ -78,7 +81,7 @@ public class TaskServiceTest {
 
     @Test
     void shouldGetTaskById() throws TaskNotFoundException {
-        Task task = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now());
+        Task task = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         Task result = taskService.getTaskById(1L);
@@ -95,8 +98,10 @@ public class TaskServiceTest {
 
     @Test
     void shouldUpdateTask() throws TaskNotFoundException {
-        Task existingTask = new Task(1L, "desc", null, assignee, null, LocalDate.now(), LocalDate.now());
-        Task updatedTask = new Task(1L, "new desc", null, assignee, null, LocalDate.now(), LocalDate.now());
+        Task existingTask = new Task(1L, "desc", null, assignee, null, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC);
+        Task updatedTask = new Task(1L, "new desc", null, assignee, null, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC);
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(existingTask)).thenReturn(updatedTask);
@@ -109,7 +114,7 @@ public class TaskServiceTest {
 
     @Test
     void shouldThrowTaskNotFoundExceptionWhenUpdatingNonexistentTask() {
-        Task updatedTask = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now());
+        Task updatedTask = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC);
         when(taskRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(1L, updatedTask));
     }
@@ -340,5 +345,50 @@ public class TaskServiceTest {
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "", true);
         assertEquals(10, result.getTasks().size());
         assertEquals(allTasks.size(), result.getNumberOfResults());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldFilterByPriority() {
+        Task filter = new Task();
+        filter.setPriority(Priority.HIGH);
+
+        List<Task> filtered = allTasks.stream()
+                .filter(t -> t.getPriority() == Priority.HIGH)
+                .collect(Collectors.toList());
+
+        when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(filtered));
+
+        SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
+        assertTrue(result.getTasks().stream().allMatch(t -> t.getPriority() == Priority.HIGH));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldSortByPriorityAscending() {
+        List<Task> sorted = allTasks.stream()
+                .sorted(Comparator.comparing(Task::getPriority))
+                .collect(Collectors.toList());
+
+        when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(sorted));
+
+        SearchResult result = taskService.listTaskByFilter(new Task(), 0, "priority", true);
+        assertEquals(sorted.get(0).getPriority(), result.getTasks().get(0).getPriority());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldSortByPriorityDescending() {
+        List<Task> sorted = allTasks.stream()
+                .sorted(Comparator.comparing(Task::getPriority).reversed())
+                .collect(Collectors.toList());
+
+        when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(sorted));
+
+        SearchResult result = taskService.listTaskByFilter(new Task(), 0, "priority", false);
+        assertEquals(sorted.get(0).getPriority(), result.getTasks().get(0).getPriority());
     }
 }

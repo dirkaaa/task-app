@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { Priority } from '../../model/Priority';
 
 @Component({
   selector: 'app-edit-task',
@@ -40,7 +41,8 @@ export class EditTaskComponent implements OnInit {
   taskForm: FormGroup;
   users: User[] = [];
   statuses = Object.values(Status);
-  isEditMode = false;
+  priorities = Object.values(Priority);
+  editMode = false;
   loading = false;
   creator: User | null = null;
 
@@ -54,6 +56,7 @@ export class EditTaskComponent implements OnInit {
     this.taskForm = this.fb.group({
       description: ['', Validators.required],
       status: ['', Validators.required],
+      priority: ['', Validators.required],
       assignee: [null],
       creator: [{ value: '', disabled: true }],
       dueDate: ['', Validators.required],
@@ -65,12 +68,13 @@ export class EditTaskComponent implements OnInit {
     this.users = await this.userService.getAllUsers();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.isEditMode = true;
+      this.editMode = true;
       const task = await this.taskService.getTaskById(+id);
       this.creator = task.creator ?? null;
       this.taskForm.patchValue({
         description: task.description,
         status: task.status,
+        priority: task.priority,
         assignee: task.assignee,
         creator: task.creator?.username,
         dueDate: task.dueDate ? new Date(task.dueDate) : '',
@@ -89,20 +93,19 @@ export class EditTaskComponent implements OnInit {
     const task: Task = {
       description: formValue.description,
       status: formValue.status,
+      priority: formValue.priority,
       assignee: formValue.assignee,
       creator: this.creator ?? undefined,
       dueDate: this.formatLocalDate(formValue.dueDate),
       createdAt: formValue.createdAt,
     };
-    console.log('Submitting task:', task);
     try {
-      if (this.isEditMode && this.route.snapshot.paramMap.get('id')) {
+      if (this.editMode && this.route.snapshot.paramMap.get('id')) {
         await this.taskService.updateTask(
           +this.route.snapshot.paramMap.get('id')!,
           task
         );
       } else {
-        console.log('Creating new task:', task);
         await this.taskService.createTask(task);
       }
       this.router.navigate(['/tasks']);
@@ -116,5 +119,9 @@ export class EditTaskComponent implements OnInit {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  isEditMode() {
+    return this.editMode;
   }
 }

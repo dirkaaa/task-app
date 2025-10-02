@@ -18,16 +18,16 @@ export class ApiService {
         ...options,
       });
 
+      if (response.status === 204) {
+        return {} as T;
+      }
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || `HTTP error ${response.status}`);
       }
 
-      if (options.method !== 'DELETE' && response.status !== 204) {
-        return (await response.json()) as T;
-      } else {
-        return {} as T;
-      }
+      return (await response.json()) as T;
     } catch (error) {
       throw error;
     }

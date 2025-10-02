@@ -23,7 +23,7 @@ public class TaskService {
 
     private static final int TASK_BATCH_SIZE = 10;
 
-    private static final List<String> ALLOWED_SORT_FIELDS = List.of("dueDate", "status");
+    private static final List<String> ALLOWED_SORT_FIELDS = List.of("dueDate", "status", "priority");
 
     private final TaskRepository taskRepository;
     private final UserService userService;
@@ -39,7 +39,8 @@ public class TaskService {
     }
 
     private void validateTask(Task task) throws TaskCanNotBeCreatedException {
-        if (task.getDescription() == null || task.getDescription().isBlank()) {
+        if (task.getDescription() == null || task.getDescription().isBlank() || task.getStatus() == null
+                || task.getPriority() == null) {
             throw new TaskCanNotBeCreatedException();
         }
         try {
@@ -116,6 +117,10 @@ public class TaskService {
 
             if (filter.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.getStatus().ordinal()));
+            }
+
+            if (filter.getPriority() != null) {
+                predicates.add(cb.equal(root.get("priority"), filter.getPriority().ordinal()));
             }
 
             if (filter.getDueDate() != null) {

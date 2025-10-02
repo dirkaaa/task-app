@@ -64,6 +64,6 @@ public class AuthController {
             new CookieClearingLogoutHandler(COOKIE_NAME).logout(request, response, authentication);
         }
         request.getSession().invalidate();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
