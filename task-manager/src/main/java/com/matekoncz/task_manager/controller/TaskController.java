@@ -41,16 +41,17 @@ public class TaskController {
 
     @PostMapping("/all")
     public ResponseEntity<SearchResult> listTasksByFilter(@RequestParam(defaultValue = "0") int offset,
-                                               @RequestParam(defaultValue = "") String orderBy,
-                                               @RequestParam(defaultValue = "true") boolean ascending,
-                                               @RequestBody String filterTaskJson) throws IOException {
+            @RequestParam(defaultValue = "") String orderBy,
+            @RequestParam(defaultValue = "true") boolean ascending,
+            @RequestBody String filterTaskJson) throws IOException {
         Task filterTask = objectMapper.readValue(filterTaskJson, Task.class);
         SearchResult searchResult = taskService.listTaskByFilter(filterTask, offset, orderBy, ascending);
         return ResponseEntity.ok(searchResult);
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(Authentication authentication, @RequestBody String taskJson) throws IOException, TaskCanNotBeCreatedException {
+    public ResponseEntity<Task> createTask(Authentication authentication, @RequestBody String taskJson)
+            throws IOException, TaskCanNotBeCreatedException {
         Task task = objectMapper.readValue(taskJson, Task.class);
         task.setCreator((User) authentication.getPrincipal());
         task.setCreatedAt(LocalDate.now());
@@ -59,7 +60,8 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody String taskJson) throws IOException, TaskNotFoundException {
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody String taskJson)
+            throws IOException, TaskNotFoundException {
         Task updatedTask = objectMapper.readValue(taskJson, Task.class);
         Task task = taskService.updateTask(id, updatedTask);
         return ResponseEntity.ok(task);

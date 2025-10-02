@@ -23,9 +23,8 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/login").permitAll()
-                    .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .anyRequest().authenticated())
                 .build();
     }
 

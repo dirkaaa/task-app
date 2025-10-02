@@ -29,36 +29,39 @@ public class AuthController {
 
     private final UserService userService;
     private final ObjectMapper objectMapper;
+
     public AuthController(UserService userService, ObjectMapper objectMapper) {
         this.userService = userService;
         this.objectMapper = objectMapper;
     }
+
     @PostMapping("/login")
-    public ResponseEntity<User> login(HttpServletRequest request, @RequestBody String credentialsJson) throws IOException, UserNotFoundException, WrongUsernameOrPasswordException {
+    public ResponseEntity<User> login(HttpServletRequest request, @RequestBody String credentialsJson)
+            throws IOException, UserNotFoundException, WrongUsernameOrPasswordException {
         Credentials credentials = objectMapper.readValue(credentialsJson, Credentials.class);
         User user = userService.authenticate(credentials.getUsername(), credentials.getPassword());
 
-        Authentication authentication =
-            new UsernamePasswordAuthenticationToken(
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 credentials.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-            );
+                List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        request.getSession(true).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+        request.getSession(true).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
         return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) throws IOException, UserNotFoundException, WrongUsernameOrPasswordException {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, UserNotFoundException, WrongUsernameOrPasswordException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             new CookieClearingLogoutHandler(COOKIE_NAME).logout(request, response, authentication);
         }
-        request.getSession().invalidate(); 
+        request.getSession().invalidate();
         return ResponseEntity.ok().build();
     }
 }

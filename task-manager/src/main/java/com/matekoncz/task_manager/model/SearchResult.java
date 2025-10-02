@@ -6,7 +6,6 @@ public class SearchResult {
     private long numberOfResults;
     private List<Task> tasks;
 
-
     public SearchResult() {
     }
 

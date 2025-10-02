@@ -34,7 +34,7 @@ public class Task {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    @Column(name="due_date", nullable = false)
+    @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
     @Column(nullable = false)
@@ -43,7 +43,8 @@ public class Task {
     public Task() {
     }
 
-    public Task(Long id, String description, Status status, User assignee, User creator, LocalDate dueDate, LocalDate createdAt) {
+    public Task(Long id, String description, Status status, User assignee, User creator, LocalDate dueDate,
+            LocalDate createdAt) {
         this.id = id;
         this.description = description;
         this.status = status;

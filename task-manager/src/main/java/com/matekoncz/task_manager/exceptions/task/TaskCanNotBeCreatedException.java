@@ -4,5 +4,5 @@ public class TaskCanNotBeCreatedException extends TaskException {
     public TaskCanNotBeCreatedException() {
         super("Task can not be created.");
     }
-    
+
 }

@@ -14,7 +14,7 @@ public class DataInitializer {
     CommandLineRunner initDatabase(UserService userService) {
         return args -> {
             if (userService.getAllUsers().size() == 0) {
-                User admin = new User(null,"admin","admin");
+                User admin = new User(null, "admin", "admin");
                 userService.createUser(admin);
             }
         };

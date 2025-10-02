@@ -44,7 +44,7 @@ public class TaskService {
         }
         try {
             userService.getUserById(task.getCreator().getId());
-            if( task.getAssignee() != null ){
+            if (task.getAssignee() != null) {
                 userService.getUserById(task.getAssignee().getId());
             }
         } catch (Exception e) {
@@ -84,30 +84,30 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public SearchResult listTaskByFilter(Task filterTask, int offset, String orderBy, boolean ascending){
+    public SearchResult listTaskByFilter(Task filterTask, int offset, String orderBy, boolean ascending) {
         Pageable pageable;
-        if(!orderBy.isBlank() && ALLOWED_SORT_FIELDS.contains(orderBy)){
+        if (!orderBy.isBlank() && ALLOWED_SORT_FIELDS.contains(orderBy)) {
             Sort sort = ascending ? Sort.by(orderBy).ascending() : Sort.by(orderBy).descending();
-            pageable = getPageable(filterTask,offset,sort);
+            pageable = getPageable(filterTask, offset, sort);
         } else {
-            pageable = getPageable(filterTask,offset);
+            pageable = getPageable(filterTask, offset);
         }
-        return listTasksByFilterAndPageable(filterTask,pageable);
+        return listTasksByFilterAndPageable(filterTask, pageable);
     }
 
-    private Pageable getPageable(Task filterTask, int offset){
-        return getPageable(filterTask,offset,Sort.by("id").ascending());
+    private Pageable getPageable(Task filterTask, int offset) {
+        return getPageable(filterTask, offset, Sort.by("id").ascending());
     }
 
-    private Pageable getPageable(Task filterTask, int offset,Sort sort){
+    private Pageable getPageable(Task filterTask, int offset, Sort sort) {
         int pageNumber = offset / TASK_BATCH_SIZE;
-        return PageRequest.of(pageNumber,TASK_BATCH_SIZE,sort); 
+        return PageRequest.of(pageNumber, TASK_BATCH_SIZE, sort);
     }
 
     private SearchResult listTasksByFilterAndPageable(Task filter, Pageable pageable) {
         Specification<Task> specification = createSecification(filter);
-        Page<Task> results = taskRepository.findAll(specification,pageable);
-        return new SearchResult(results.getTotalElements(),results.getContent());
+        Page<Task> results = taskRepository.findAll(specification, pageable);
+        return new SearchResult(results.getTotalElements(), results.getContent());
     }
 
     private Specification<Task> createSecification(Task filter) {

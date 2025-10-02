@@ -49,14 +49,13 @@ public class TaskServiceTest {
         allTasks = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             Task t = new Task(
-                (long) i,
-                "desc" + i,
-                Status.values()[i % Status.values().length],
-                (i % 2 == 0) ? assignee : null,
-                creator,
-                LocalDate.of(2025, 10, (i % 28) + 1),
-                LocalDate.of(2025, 9, (i % 28) + 1)
-            );
+                    (long) i,
+                    "desc" + i,
+                    Status.values()[i % Status.values().length],
+                    (i % 2 == 0) ? assignee : null,
+                    creator,
+                    LocalDate.of(2025, 10, (i % 28) + 1),
+                    LocalDate.of(2025, 9, (i % 28) + 1));
             allTasks.add(t);
         }
     }
@@ -138,11 +137,11 @@ public class TaskServiceTest {
         filter.setStatus(Status.NEW);
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> t.getStatus() == Status.NEW)
-            .collect(Collectors.toList());
+                .filter(t -> t.getStatus() == Status.NEW)
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertTrue(result.getTasks().stream().allMatch(t -> t.getStatus() == Status.NEW));
@@ -156,11 +155,11 @@ public class TaskServiceTest {
         filter.setDueDate(dueDate);
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> dueDate.equals(t.getDueDate()))
-            .collect(Collectors.toList());
+                .filter(t -> dueDate.equals(t.getDueDate()))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertTrue(result.getTasks().stream().allMatch(t -> dueDate.equals(t.getDueDate())));
@@ -173,11 +172,11 @@ public class TaskServiceTest {
         filter.setAssignee(assignee);
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> assignee.equals(t.getAssignee()))
-            .collect(Collectors.toList());
+                .filter(t -> assignee.equals(t.getAssignee()))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertTrue(result.getTasks().stream().allMatch(t -> assignee.equals(t.getAssignee())));
@@ -190,11 +189,11 @@ public class TaskServiceTest {
         filter.setCreator(creator);
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> creator.equals(t.getCreator()))
-            .collect(Collectors.toList());
+                .filter(t -> creator.equals(t.getCreator()))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertTrue(result.getTasks().stream().allMatch(t -> creator.equals(t.getCreator())));
@@ -207,11 +206,11 @@ public class TaskServiceTest {
         filter.setDescription("desc1");
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> t.getDescription().toLowerCase().contains("desc1"))
-            .collect(Collectors.toList());
+                .filter(t -> t.getDescription().toLowerCase().contains("desc1"))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertTrue(result.getTasks().stream().allMatch(t -> t.getDescription().toLowerCase().contains("desc1")));
@@ -229,15 +228,15 @@ public class TaskServiceTest {
         filter.setDescription("desc");
 
         List<Task> filtered = allTasks.stream()
-            .filter(t -> t.getStatus() == Status.NEW)
-            .filter(t -> dueDate.equals(t.getDueDate()))
-            .filter(t -> assignee.equals(t.getAssignee()))
-            .filter(t -> creator.equals(t.getCreator()))
-            .filter(t -> t.getDescription().toLowerCase().contains("desc"))
-            .collect(Collectors.toList());
+                .filter(t -> t.getStatus() == Status.NEW)
+                .filter(t -> dueDate.equals(t.getDueDate()))
+                .filter(t -> assignee.equals(t.getAssignee()))
+                .filter(t -> creator.equals(t.getCreator()))
+                .filter(t -> t.getDescription().toLowerCase().contains("desc"))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filtered));
+                .thenReturn(new PageImpl<>(filtered));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
         assertEquals(filtered.size(), result.getTasks().size());
@@ -247,11 +246,11 @@ public class TaskServiceTest {
     @Test
     void shouldSortByDueDateAscending() {
         List<Task> sorted = allTasks.stream()
-            .sorted(Comparator.comparing(Task::getDueDate))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(sorted));
+                .thenReturn(new PageImpl<>(sorted));
 
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "due_date", true);
         assertEquals(sorted.get(0).getDueDate(), result.getTasks().get(0).getDueDate());
@@ -261,11 +260,11 @@ public class TaskServiceTest {
     @Test
     void shouldSortByDueDateDescending() {
         List<Task> sorted = allTasks.stream()
-            .sorted(Comparator.comparing(Task::getDueDate).reversed())
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Task::getDueDate).reversed())
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(sorted));
+                .thenReturn(new PageImpl<>(sorted));
 
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "due_date", false);
         assertEquals(sorted.get(0).getDueDate(), result.getTasks().get(0).getDueDate());
@@ -275,11 +274,11 @@ public class TaskServiceTest {
     @Test
     void shouldSortByStatusAscending() {
         List<Task> sorted = allTasks.stream()
-            .sorted(Comparator.comparing(Task::getStatus))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Task::getStatus))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(sorted));
+                .thenReturn(new PageImpl<>(sorted));
 
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "status", true);
         assertEquals(sorted.get(0).getStatus(), result.getTasks().get(0).getStatus());
@@ -289,11 +288,11 @@ public class TaskServiceTest {
     @Test
     void shouldSortByStatusDescending() {
         List<Task> sorted = allTasks.stream()
-            .sorted(Comparator.comparing(Task::getStatus).reversed())
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Task::getStatus).reversed())
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(sorted));
+                .thenReturn(new PageImpl<>(sorted));
 
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "status", false);
         assertEquals(sorted.get(0).getStatus(), result.getTasks().get(0).getStatus());
@@ -311,16 +310,16 @@ public class TaskServiceTest {
         filter.setDescription("desc");
 
         List<Task> filteredSorted = allTasks.stream()
-            .filter(t -> t.getStatus() == Status.NEW)
-            .filter(t -> dueDate.equals(t.getDueDate()))
-            .filter(t -> assignee.equals(t.getAssignee()))
-            .filter(t -> creator.equals(t.getCreator()))
-            .filter(t -> t.getDescription().toLowerCase().contains("desc"))
-            .sorted(Comparator.comparing(Task::getDueDate))
-            .collect(Collectors.toList());
+                .filter(t -> t.getStatus() == Status.NEW)
+                .filter(t -> dueDate.equals(t.getDueDate()))
+                .filter(t -> assignee.equals(t.getAssignee()))
+                .filter(t -> creator.equals(t.getCreator()))
+                .filter(t -> t.getDescription().toLowerCase().contains("desc"))
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .collect(Collectors.toList());
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(filteredSorted));
+                .thenReturn(new PageImpl<>(filteredSorted));
 
         SearchResult result = taskService.listTaskByFilter(filter, 0, "due_date", true);
         assertEquals(filteredSorted.size(), result.getTasks().size());
@@ -335,7 +334,7 @@ public class TaskServiceTest {
         List<Task> tenTasks = allTasks.subList(0, 10);
 
         when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(tenTasks, PageRequest.of(0, 10), allTasks.size()));
+                .thenReturn(new PageImpl<>(tenTasks, PageRequest.of(0, 10), allTasks.size()));
 
         SearchResult result = taskService.listTaskByFilter(new Task(), 0, "", true);
         assertEquals(10, result.getTasks().size());

@@ -110,15 +110,15 @@ public class UserServiceTest {
         User user = new User(1L, "testuser", encodedPassword);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        assertThrows(WrongUsernameOrPasswordException.class, () -> userService.authenticate("testuser", "wrongpassword"));
+        assertThrows(WrongUsernameOrPasswordException.class,
+                () -> userService.authenticate("testuser", "wrongpassword"));
     }
 
     @Test
     void shouldGetAllUsers() {
         List<User> users = Arrays.asList(
                 new User(1L, "user1", "pass1"),
-                new User(2L, "user2", "pass2")
-        );
+                new User(2L, "user2", "pass2"));
         when(userRepository.findAll()).thenReturn(users);
 
         List<User> result = userService.getAllUsers();

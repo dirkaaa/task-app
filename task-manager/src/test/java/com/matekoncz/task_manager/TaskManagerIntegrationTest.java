@@ -26,13 +26,13 @@ public abstract class TaskManagerIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    protected final void login(Credentials credentials) throws Exception{
+    protected final void login(Credentials credentials) throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(credentials)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        session = (MockHttpSession) loginResult.getRequest().getSession(false);      
+        session = (MockHttpSession) loginResult.getRequest().getSession(false);
     }
 }

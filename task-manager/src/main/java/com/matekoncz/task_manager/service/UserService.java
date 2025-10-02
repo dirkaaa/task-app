@@ -22,8 +22,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(User user) throws UserCanNotBeCreatedException, UserNameIsNotUniqueException{
-        try{
+    public User createUser(User user) throws UserCanNotBeCreatedException, UserNameIsNotUniqueException {
+        try {
             getUserByUsername(user.getUsername());
             throw new UserNameIsNotUniqueException();
         } catch (UserNotFoundException e) {
@@ -56,7 +56,7 @@ public class UserService {
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new WrongUsernameOrPasswordException();
             }
-        return user;
+            return user;
         } catch (UserNotFoundException e) {
             throw new WrongUsernameOrPasswordException();
         }

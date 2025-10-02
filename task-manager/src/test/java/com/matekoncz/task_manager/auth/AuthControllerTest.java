@@ -55,7 +55,8 @@ public class AuthControllerTest extends TaskManagerIntegrationTest {
         headers.set("Cookie", loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<Void> logoutResponse = restTemplate.exchange("/api/auth/logout", HttpMethod.DELETE, entity, Void.class);
+        ResponseEntity<Void> logoutResponse = restTemplate.exchange("/api/auth/logout", HttpMethod.DELETE, entity,
+                Void.class);
 
         assertEquals(HttpStatus.OK, logoutResponse.getStatusCode());
     }

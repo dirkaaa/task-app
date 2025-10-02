@@ -57,14 +57,13 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         allTasks = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             Task t = new Task(
-                null,
-                "desc" + i,
-                Status.values()[i % Status.values().length],
-                (i % 2 == 0) ? assignee : null,
-                creator,
-                LocalDate.of(2025, 10, (i % 28) + 1),
-                LocalDate.of(2025, 9, (i % 28) + 1)
-            );
+                    null,
+                    "desc" + i,
+                    Status.values()[i % Status.values().length],
+                    (i % 2 == 0) ? assignee : null,
+                    creator,
+                    LocalDate.of(2025, 10, (i % 28) + 1),
+                    LocalDate.of(2025, 9, (i % 28) + 1));
             allTasks.add(taskService.createTask(t));
         }
     }
@@ -86,7 +85,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         task.setDescription("updated desc");
         HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
-        ResponseEntity<Task> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.PUT, entity, Task.class);
+        ResponseEntity<Task> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.PUT, entity,
+                Task.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getDescription(), is("updated desc"));
@@ -97,7 +97,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task task = allTasks.get(0);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<Void> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.DELETE, entity, Void.class);
+        ResponseEntity<Void> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.DELETE, entity,
+                Void.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NO_CONTENT));
         assertThrows(TaskNotFoundException.class, () -> taskService.getTaskById(task.getId()));
@@ -109,7 +110,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setStatus(Status.NEW);
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
@@ -122,7 +124,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setDueDate(dueDate);
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
@@ -134,10 +137,12 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setAssignee(assignee);
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
     }
 
     @Test
@@ -146,10 +151,12 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setCreator(creator);
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
     }
 
     @Test
@@ -158,7 +165,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setDescription("desc1");
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc1"))));
@@ -175,13 +183,16 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setDescription("desc");
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc"))));
     }
 
@@ -190,7 +201,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task filter = new Task();
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks().get(0).getDueDate(), notNullValue());
@@ -201,7 +213,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task filter = new Task();
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=false", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=false", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks().get(0).getDueDate(), notNullValue());
@@ -212,7 +225,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task filter = new Task();
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks().get(0).getStatus(), notNullValue());
@@ -223,7 +237,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task filter = new Task();
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=false", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=false", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks().get(0).getStatus(), notNullValue());
@@ -240,13 +255,16 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         filter.setDescription("desc");
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
-        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
+        assertThat(response.getBody().getTasks(),
+                everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
         assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc"))));
     }
 
@@ -255,7 +273,8 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         Task filter = new Task();
         HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getTasks(), hasSize(10));

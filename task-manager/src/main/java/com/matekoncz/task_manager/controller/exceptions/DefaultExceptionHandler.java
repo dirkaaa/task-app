@@ -58,7 +58,7 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<Map<String, String>> handleOtherExceptions(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,"An unexpected error occurred.");
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
     }
 
     private ResponseEntity<Map<String, String>> buildResponse(HttpStatus status, String message) {

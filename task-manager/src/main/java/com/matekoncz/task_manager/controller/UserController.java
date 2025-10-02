@@ -28,7 +28,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody String userJson) throws IOException, UserCanNotBeCreatedException, UserNameIsNotUniqueException {
+    public ResponseEntity<User> createUser(@RequestBody String userJson)
+            throws IOException, UserCanNotBeCreatedException, UserNameIsNotUniqueException {
         User user = objectMapper.readValue(userJson, User.class);
         User createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
