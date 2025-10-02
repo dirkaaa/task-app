@@ -224,6 +224,8 @@ propts:
 
 - Create integration tests for AuthController, similar to UserControllerTests.
 
+- Refactor AuthControllerTest, TaskControllerTest and UserControllerTest: use TestRestTemplate instead of MockMvc. Keep the testing logic intact.
+
 #### frontend:
 
 - Generate User, Task, Status, Credentials .ts files.

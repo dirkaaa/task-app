@@ -99,9 +99,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenAuthenticatingNonexistentUser() {
+    void shouldThrowWrongUsernameOrPasswordExceptionWhenAuthenticatingNonexistentUser() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.authenticate("testuser", "password"));
+        assertThrows(WrongUsernameOrPasswordException.class, () -> userService.authenticate("testuser", "password"));
     }
 
     @Test

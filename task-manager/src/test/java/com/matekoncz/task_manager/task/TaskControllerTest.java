@@ -3,25 +3,27 @@ package com.matekoncz.task_manager.task;
 import com.matekoncz.task_manager.TaskManagerIntegrationTest;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 import com.matekoncz.task_manager.model.Credentials;
+import com.matekoncz.task_manager.model.SearchResult;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.model.User;
 import com.matekoncz.task_manager.service.TaskService;
 import com.matekoncz.task_manager.service.UserService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-public class TaskControllerTest extends TaskManagerIntegrationTest{
+
+public class TaskControllerTest extends TaskManagerIntegrationTest {
 
     @Autowired
     private TaskService taskService;
@@ -29,6 +31,10 @@ public class TaskControllerTest extends TaskManagerIntegrationTest{
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    private HttpHeaders headers;
     private User creator;
     private User assignee;
     private List<Task> allTasks;
@@ -44,7 +50,10 @@ public class TaskControllerTest extends TaskManagerIntegrationTest{
         creator = userService.createUser(unsavedCreator);
         assignee = userService.createUser(unsavedAssignee);
 
-        login(credentials);
+        ResponseEntity<User> loginResponse = restTemplate.postForEntity("/api/auth/login", credentials, User.class);
+        headers = new HttpHeaders();
+        headers.set("Cookie", loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
+
         allTasks = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             Task t = new Task(
@@ -60,128 +69,103 @@ public class TaskControllerTest extends TaskManagerIntegrationTest{
         }
     }
 
-    // --- Existing tests for CRUD ---
-
     @Test
-    void shouldCreateTask() throws Exception {
+    void shouldCreateTask() {
         Task task = new Task(null, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now());
+        HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
-        mockMvc.perform(post("/api/tasks")
-                .session(session)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(task)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("desc"));
+        ResponseEntity<Task> response = restTemplate.postForEntity("/api/tasks", entity, Task.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getDescription(), is("desc"));
     }
 
     @Test
-    void shouldUpdateTask() throws Exception {
+    void shouldUpdateTask() {
         Task task = allTasks.get(0);
         task.setDescription("updated desc");
+        HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
-        mockMvc.perform(put("/api/tasks/" + task.getId())
-                .session(session)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(task)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("updated desc"));
+        ResponseEntity<Task> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.PUT, entity, Task.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getDescription(), is("updated desc"));
     }
 
     @Test
-    void shouldDeleteTask() throws Exception {
+    void shouldDeleteTask() {
         Task task = allTasks.get(0);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        mockMvc.perform(delete("/api/tasks/" + task.getId()).session(session))
-                .andExpect(status().isNoContent());
+        ResponseEntity<Void> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.DELETE, entity, Void.class);
 
-        assertThrows(TaskNotFoundException.class,()->taskService.getTaskById(task.getId()));
+        assertThat(response.getStatusCode(), is(HttpStatus.NO_CONTENT));
+        assertThrows(TaskNotFoundException.class, () -> taskService.getTaskById(task.getId()));
     }
 
-    // --- Filtering and sorting tests ---
-
     @Test
-    void shouldFilterByStatus() throws Exception {
+    void shouldFilterByStatus() {
         Task filter = new Task();
         filter.setStatus(Status.NEW);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].status", everyItem(is(Status.NEW.name()))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
     }
 
     @Test
-    void shouldFilterByDueDate() throws Exception {
+    void shouldFilterByDueDate() {
         LocalDate dueDate = LocalDate.of(2025, 10, 5);
         Task filter = new Task();
         filter.setDueDate(dueDate);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].dueDate", everyItem(is(dueDate.toString()))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
     }
 
     @Test
-    void shouldFilterByAssignee() throws Exception {
+    void shouldFilterByAssignee() {
         Task filter = new Task();
         filter.setAssignee(assignee);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].assignee.username", everyItem(is(assignee.getUsername()))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
     }
 
     @Test
-    void shouldFilterByCreator() throws Exception {
+    void shouldFilterByCreator() {
         Task filter = new Task();
         filter.setCreator(creator);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].creator.username", everyItem(is(creator.getUsername()))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
     }
 
     @Test
-    void shouldFilterByDescription() throws Exception {
+    void shouldFilterByDescription() {
         Task filter = new Task();
         filter.setDescription("desc1");
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].description", everyItem(containsString("desc1"))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc1"))));
     }
 
     @Test
-    void shouldFilterByAllFieldsCombined() throws Exception {
+    void shouldFilterByAllFieldsCombined() {
         LocalDate dueDate = LocalDate.of(2025, 10, 5);
         Task filter = new Task();
         filter.setStatus(Status.NEW);
@@ -189,85 +173,64 @@ public class TaskControllerTest extends TaskManagerIntegrationTest{
         filter.setAssignee(assignee);
         filter.setCreator(creator);
         filter.setDescription("desc");
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].status", everyItem(is(Status.NEW.name()))))
-                .andExpect(jsonPath("$.tasks[*].dueDate", everyItem(is(dueDate.toString()))))
-                .andExpect(jsonPath("$.tasks[*].assignee.username", everyItem(is(assignee.getUsername()))))
-                .andExpect(jsonPath("$.tasks[*].creator.username", everyItem(is(creator.getUsername()))))
-                .andExpect(jsonPath("$.tasks[*].description", everyItem(containsString("desc"))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc"))));
     }
 
     @Test
-    void shouldSortByDueDateAscending() throws Exception {
+    void shouldSortByDueDateAscending() {
         Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "dueDate")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[0].dueDate").exists());
-        // Additional checks for order can be added if needed
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getDueDate(), notNullValue());
     }
 
     @Test
-    void shouldSortByDueDateDescending() throws Exception {
+    void shouldSortByDueDateDescending() {
         Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "dueDate")
-                .param("ascending", "false")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[0].dueDate").exists());
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=false", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getDueDate(), notNullValue());
     }
 
     @Test
-    void shouldSortByStatusAscending() throws Exception {
+    void shouldSortByStatusAscending() {
         Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "status")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[0].status").exists());
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getStatus(), notNullValue());
     }
 
     @Test
-    void shouldSortByStatusDescending() throws Exception {
+    void shouldSortByStatusDescending() {
         Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "status")
-                .param("ascending", "false")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[0].status").exists());
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=status&ascending=false", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks().get(0).getStatus(), notNullValue());
     }
 
     @Test
-    void shouldSortAndFilterCombined() throws Exception {
+    void shouldSortAndFilterCombined() {
         LocalDate dueDate = LocalDate.of(2025, 10, 5);
         Task filter = new Task();
         filter.setStatus(Status.NEW);
@@ -275,35 +238,27 @@ public class TaskControllerTest extends TaskManagerIntegrationTest{
         filter.setAssignee(assignee);
         filter.setCreator(creator);
         filter.setDescription("desc");
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "dueDate")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks[*].status", everyItem(is(Status.NEW.name()))))
-                .andExpect(jsonPath("$.tasks[*].dueDate", everyItem(is(dueDate.toString()))))
-                .andExpect(jsonPath("$.tasks[*].assignee.username", everyItem(is(assignee.getUsername()))))
-                .andExpect(jsonPath("$.tasks[*].creator.username", everyItem(is(creator.getUsername()))))
-                .andExpect(jsonPath("$.tasks[*].description", everyItem(containsString("desc"))));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=dueDate&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("status", is(Status.NEW))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("dueDate", is(dueDate))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("assignee", hasProperty("username", is(assignee.getUsername())))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("creator", hasProperty("username", is(creator.getUsername())))));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("description", containsString("desc"))));
     }
 
     @Test
-    void shouldReturnOnlyTenTasksAndCorrectTotalForPaging() throws Exception {
+    void shouldReturnOnlyTenTasksAndCorrectTotalForPaging() {
         Task filter = new Task();
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
 
-        mockMvc.perform(post("/api/tasks/all")
-                .session(session)
-                .param("offset", "0")
-                .param("orderBy", "")
-                .param("ascending", "true")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filter)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tasks", hasSize(10)))
-                .andExpect(jsonPath("$.numberOfResults", is(25)));
+        ResponseEntity<SearchResult> response = restTemplate.postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), hasSize(10));
+        assertThat(response.getBody().getNumberOfResults(), is(25L));
     }
 }

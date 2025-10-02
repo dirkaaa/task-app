@@ -6,18 +6,21 @@ import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.model.Credentials;
 import com.matekoncz.task_manager.model.User;
 import com.matekoncz.task_manager.service.UserService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthControllerTest extends TaskManagerIntegrationTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @BeforeEach
     void setUp() throws UserCanNotBeCreatedException, UserNameIsNotUniqueException {
@@ -26,31 +29,34 @@ public class AuthControllerTest extends TaskManagerIntegrationTest {
     }
 
     @Test
-    void shouldLoginWithValidCredentials() throws Exception {
-        String credentialsJson = "{\"username\":\"authuser\",\"password\":\"password\"}";
+    void shouldLoginWithValidCredentials() {
+        Credentials credentials = new Credentials("authuser", "password");
+        ResponseEntity<User> response = restTemplate.postForEntity("/api/auth/login", credentials, User.class);
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(credentialsJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("authuser"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("authuser", response.getBody().getUsername());
     }
 
     @Test
-    void shouldFailLoginWithInvalidCredentials() throws Exception {
-        String credentialsJson = "{\"username\":\"authuser\",\"password\":\"wrongpassword\"}";
+    void shouldFailLoginWithInvalidCredentials() {
+        Credentials credentials = new Credentials("authuser", "wrongpassword");
+        ResponseEntity<String> response = restTemplate.postForEntity("/api/auth/login", credentials, String.class);
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(credentialsJson))
-                .andExpect(status().isUnauthorized());
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
     @Test
-    void shouldLogoutSuccessfully() throws Exception {
-        login(new Credentials("authuser", "password"));        
+    void shouldLogoutSuccessfully() {
+        Credentials credentials = new Credentials("authuser", "password");
+        ResponseEntity<User> loginResponse = restTemplate.postForEntity("/api/auth/login", credentials, User.class);
 
-        mockMvc.perform(delete("/api/auth/logout").session(session))
-                .andExpect(status().isOk());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Void> logoutResponse = restTemplate.exchange("/api/auth/logout", HttpMethod.DELETE, entity, Void.class);
+
+        assertEquals(HttpStatus.OK, logoutResponse.getStatusCode());
     }
 }

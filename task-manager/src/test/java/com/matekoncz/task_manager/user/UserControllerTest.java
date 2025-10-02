@@ -1,7 +1,9 @@
 package com.matekoncz.task_manager.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matekoncz.task_manager.TaskManagerIntegrationTest;
+import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
+import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
+import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.Credentials;
 import com.matekoncz.task_manager.model.User;
 import com.matekoncz.task_manager.service.TaskService;
@@ -9,15 +11,15 @@ import com.matekoncz.task_manager.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class UserControllerTest extends TaskManagerIntegrationTest {
-    
+
     @Autowired
     private UserService userService;
 
@@ -25,7 +27,9 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
     private TaskService taskService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private TestRestTemplate restTemplate;
+
+    private HttpHeaders headers;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -34,19 +38,22 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         User creator = new User(null, "creator", "password");
         Credentials credentials = Credentials.of(creator);
         userService.createUser(creator);
-        login(credentials);
+
+        ResponseEntity<User> loginResponse = restTemplate.postForEntity("/api/auth/login", credentials, User.class);
+        headers = new HttpHeaders();
+        headers.set("Cookie", loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
     }
 
     @Test
-    void shouldCreateUser() throws Exception {
+    void shouldCreateUser() throws UserNotFoundException {
         User user = new User(null, "testuser", "password");
+        HttpEntity<User> entity = new HttpEntity<>(user, headers);
 
-        mockMvc.perform(post("/api/users")
-                .session(session)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("testuser"));
+        ResponseEntity<User> response = restTemplate.postForEntity("/api/users", entity, User.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("testuser", response.getBody().getUsername());
 
         User created = userService.getUserByUsername("testuser");
         assertNotNull(created);
@@ -54,12 +61,15 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
     }
 
     @Test
-    void shouldListAllUsers() throws Exception {
+    void shouldListAllUsers() throws UserCanNotBeCreatedException, UserNameIsNotUniqueException {
         userService.createUser(new User(null, "user2", "pass2"));
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        mockMvc.perform(get("/api/users/all").session(session))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+        ResponseEntity<User[]> response = restTemplate.exchange("/api/users/all", HttpMethod.GET, entity, User[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().length);
 
         List<User> users = userService.getAllUsers();
         assertEquals(2, users.size());
