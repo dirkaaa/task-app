@@ -245,6 +245,23 @@ public class TaskServiceTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    void shouldFilterByCategory() {
+        Task filter = new Task();
+        filter.setCategory(defaultCategory);
+
+        List<Task> filtered = allTasks.stream()
+                .filter(t -> defaultCategory.equals(t.getCategory()))
+                .collect(Collectors.toList());
+
+        when(taskRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(filtered));
+
+        SearchResult result = taskService.listTaskByFilter(filter, 0, "", true);
+        assertTrue(result.getTasks().stream().allMatch(t -> defaultCategory.equals(t.getCategory())));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     void shouldFilterByDescription() {
         Task filter = new Task();
         filter.setDescription("desc1");

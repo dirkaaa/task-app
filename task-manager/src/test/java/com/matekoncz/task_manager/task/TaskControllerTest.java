@@ -107,6 +107,7 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         assertThat(response.getBody().getCategory().getName(), is("Personal"));
     }
 
+    @Test
     void shouldFilterByCategory() {
         Task filter = new Task();
         filter.setCategory(workCategory);
