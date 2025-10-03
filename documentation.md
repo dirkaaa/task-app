@@ -33,7 +33,7 @@ Authenticate a user using credentials.
 Logs out the current user.
 
 **Response:**  
-- `200 OK` on successful logout.
+- `204 No Content` on successful logout.
 
 ---
 
@@ -95,7 +95,7 @@ Get tasks by filter, sorting, and paging.
 
 **Query Parameters:**
 - `offset` (int, default: 0): Paging offset.
-- `orderBy` (string, default: ""): Field to sort by (`dueDate`, `status`).
+- `orderBy` (string, default: ""): Field to sort by (`dueDate`, `status`, `priority`).
 - `ascending` (boolean, default: true): Sort direction.
 
 **Request Body:**  
@@ -174,6 +174,7 @@ The task Model class:
 -   creator: User
 -   assignee: User (can be null)
 -   status: Enum(NEW, IN_PROCESS, COMPLETED, CANCELLED)
+-   priority: Enum(LOW, BASIC, HIGH, CRITICAL)
 -   createdAt: LocalDate
 -   dueDate: LocalDate
 
@@ -260,6 +261,8 @@ prompts:
 
 - Create a DTO class for the User model class. It should contain all User fields except password. Use it when sending User details through Rest endpoints. Update the related test, service and controller methods.
 
+- Create a Priority Enum. it should contain "LOW", "BASIC", "HIGH" and "CRITICAL" values. Add this as a property to the Task entity. Store its value as an ordinal in the db. Make it possible to use it to filter and sort tasks (add it to ALLOWED_SORT_FIELDS). update all related service methods and test cases. Create new test cases to test filtering and sorting with this property. Create Priority.ts and update Task.ts in a similar manner. In the editTask component, make it possible to edit this property. In taskList component, make it possible to filter and sort by priority. Also show the value of this field in the mat-table below.
+
 #### documentation:
 
 - In documentation.md, write documentation for authentication, user and task related endpoints, similar to the one I already wrote about the login endpoint.
@@ -285,3 +288,5 @@ prompts:
 - How to configure CORS with Spring Security?
 
 - How to populate db when starting a Spring application (using JPA)?
+
+- How to chain promises in a for loop?
