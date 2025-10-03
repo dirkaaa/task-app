@@ -55,7 +55,7 @@ JSON representation of a user:
 **Response:**  
 - `200 OK` with created user details.
 - `409 Conflict` if username is not unique.
-- `406 Not Acceptable` if user cannot be created.
+- `406 Not Acceptable` if user cannot be created (has invalid properties).
 
 ---
 
@@ -71,34 +71,34 @@ Retrieve all users.
 ### Task Endpoints
 
 #### GET `/api/tasks/{id}`
-**Description:**  
-Get a task by its ID.
+**Description:**
+Retrieve a task by its ID.
 
-**Response:**  
+**Response:**
 - `200 OK` with task details.
 - `404 Not Found` if the task does not exist.
 
 ---
 
 #### GET `/api/tasks/all`
-**Description:**  
-Get all tasks.
+**Description:**
+Retrieve all tasks.
 
-**Response:**  
+**Response:**
 - `200 OK` with a list of all tasks.
 
 ---
 
 #### POST `/api/tasks/all`
-**Description:**  
-Get tasks by filter, sorting, and paging.
+**Description:**
+Retrieve tasks by filter, sorting, and paging. Supports filtering by assignee, creator, dueDate, status, priority, category, and description.
 
 **Query Parameters:**
 - `offset` (int, default: 0): Paging offset.
 - `orderBy` (string, default: ""): Field to sort by (`dueDate`, `status`, `priority`).
 - `ascending` (boolean, default: true): Sort direction.
 
-**Request Body:**  
+**Request Body:**
 JSON representation of a filter task (fields can be omitted to ignore filter):
 ```json
 {
@@ -106,11 +106,13 @@ JSON representation of a filter task (fields can be omitted to ignore filter):
   "creator": { "id": 1, "username": "creator" },
   "dueDate": "2025-10-05",
   "status": "NEW",
+  "priority": "HIGH",
+  "category": { "id": 3, "name": "Work" },
   "description": "desc"
 }
 ```
 
-**Response:**  
+**Response:**
 - `200 OK` with a `SearchResult` object:
   ```json
   {
@@ -123,67 +125,128 @@ JSON representation of a filter task (fields can be omitted to ignore filter):
 ---
 
 #### POST `/api/tasks`
-**Description:**  
-Create a new task.
+**Description:**
+Create a new task. The creator is set automatically from the authenticated user.
 
-**Request Body:**  
-JSON representation of a task (creator is set automatically):
+**Request Body:**
+JSON representation of a task:
 ```json
 {
   "description": "string",
   "status": "NEW",
+  "priority": "BASIC",
+  "category": { "id": 3, "name": "Work" },
   "assignee": { "id": 2, "username": "assignee" },
   "dueDate": "2025-10-05"
 }
 ```
 
-**Response:**  
+**Response:**
 - `200 OK` with created task details.
-- `406 Not Acceptable` if task cannot be created.
+- `406 Not Acceptable` if task cannot be created (has invalid properties).
 
 ---
 
 #### PUT `/api/tasks/{id}`
-**Description:**  
+**Description:**
 Update an existing task.
 
-**Request Body:**  
-JSON representation of the updated task.
+**Request Body:**
+JSON representation of the updated task (all fields except creator can be updated):
 
-**Response:**  
+**Response:**
 - `200 OK` with updated task details.
+- `406 Not Acceptable` if the task can not be updated (has invalid properties).
 - `404 Not Found` if the task does not exist.
 
 ---
 
 #### DELETE `/api/tasks/{id}`
-**Description:**  
+**Description:**
 Delete a task by its ID.
 
-**Response:**  
+**Response:**
 - `204 No Content` on successful deletion.
 - `404 Not Found` if the task does not exist.
 
 ---
 
+### Category Endpoints
+
+#### POST `/api/categories`
+**Description:**
+Create a new category.
+
+**Request Body:**
+JSON representation of a category:
+```json
+{
+  "name": "Work"
+}
+```
+
+**Response:**
+- `200 OK` with created category details.
+
+---
+
+#### GET `/api/categories/{id}`
+**Description:**
+Retrieve a category by its ID.
+
+**Response:**
+- `200 OK` with category details.
+- `404 Not Found` if the category does not exist.
+
+---
+
+#### GET `/api/categories`
+**Description:**
+Retrieve all categories.
+
+**Response:**
+- `200 OK` with a list of categories.
+
+---
+
+#### DELETE `/api/categories/{id}`
+**Description:**
+Delete a category by its ID.
+
+**Response:**
+- `204 No Content` on successful deletion.
+
+---
+
 ## Data Model
 
-The task Model class:
--   id: long
--   description: String
--   creator: User
--   assignee: User (can be null)
--   status: Enum(NEW, IN_PROCESS, COMPLETED, CANCELLED)
--   priority: Enum(LOW, BASIC, HIGH, CRITICAL)
--   createdAt: LocalDate
--   dueDate: LocalDate
+### Data Model
 
-The User Model class:
--   id: long
--   username: String
--   password: String (Is only stored after hashing)
+**Task Model class:**
+- id: long
+- description: String
+- creator: User
+- assignee: User (can be null)
+- status: Enum(NEW, IN_PROCESS, COMPLETED, CANCELLED)
+- priority: Enum(LOW, BASIC, HIGH, CRITICAL)
+- category: Category (can be null)
+- createdAt: LocalDate
+- dueDate: LocalDate
 
-I also created a Data Transfer Object for the User class, which does not contain the password property. This way it can be safely sent to the client.
+**Category Model class:**
+- id: long
+- name: String
+
+**User Model class:**
+- id: long
+- username: String
+- password: String (stored only after hashing)
+
+**User DTO:**
+- id: long
+- username: String
+
+User details are always sent to the client using the User DTO, which does not contain the password for security.
 
 ## Persistence
 
@@ -193,11 +256,11 @@ When starting the application, a `CommandLineRunner` creates a default 'admin' u
 
 ## Error Handling
 
-My custom exception classes are individually mapped to responses with a fitting error code and the exception message in the body by the`DefaultExceptionHandler` class. If any other exception occurs, a response with the code 500 (INTERNAL_SERVER_ERROR) with no body is sent.
+Custom exception classes are mapped to responses with appropriate error codes and the exception message in the body by the `DefaultExceptionHandler` class. If any other exception occurs, a response with code 500 (INTERNAL_SERVER_ERROR) and a generic error message is sent.
 
-## Key Design decisions
+## Key Design Decisions
 
-### Used technologies
+### Used Technologies
 
 - Spring Boot
 - Spring Data JPA
@@ -211,7 +274,7 @@ My custom exception classes are individually mapped to responses with a fitting 
 
 ### Copilot GPT-4.1 Agent + Ask mode
 
-I used it generate code: I generated some controller and service methods and most of the tests on the backend and most of the components and services on the frontend. I also generated the documentation for most endpoints.
+I used it to generate code: controller and service methods, most backend tests, most frontend components and services, and documentation for most endpoints.
 
 prompts:
 
@@ -225,7 +288,7 @@ prompts:
 
 - Generate UserServiceTest and TaskServiceTest: create unit tests for all public methods. Use Mockito to mock repository classes. Test case method names should start with "should".
 
-- Refactor TaskServiceTest: move initalization of 'user' to a setUp method called before each test.
+- Refactor TaskServiceTest: move initialization of 'user' to a setUp method called before each test.
 
 - Generate tests for the new filtering method "listTasksByFilter" in the existing TaskController Test class. Keep the old tests and make the new ones in a similar manner. prepare scenarios for testing each of the 5 filter types, and one with all of them combined. Create tests for all sorting types (ascending, descending with both allowed fields) with no filters and one test case with all filters and sorting. create tests for paging: the number of total results should be correct and only 10 elements should be returned. 
 
@@ -234,6 +297,12 @@ prompts:
 - Create integration tests for AuthController, similar to UserControllerTests.
 
 - Refactor AuthControllerTest, TaskControllerTest and UserControllerTest: use TestRestTemplate instead of MockMvc. Keep the testing logic intact.
+
+- Create a DTO class for the User model class. It should contain all User fields except password. Use it when sending User details through Rest endpoints. Update the related test, service and controller methods.
+
+- Create a Priority Enum. it should contain "LOW", "BASIC", "HIGH" and "CRITICAL" values. Add this as a property to the Task entity. Store its value as an ordinal in the db. Make it possible to use it to filter and sort tasks (add it to ALLOWED_SORT_FIELDS). update all related service methods and test cases. Create new test cases to test filtering and sorting with this property. Create Priority.ts and update Task.ts in a similar manner. In the editTask component, make it possible to edit this property. In taskList component, make it possible to filter and sort by priority. Also show the value of this field in the mat-table below.
+
+- Create CategoryController to access public methods in CategoryService. Update TaskServiceTest, and create CategoryControllerTest.
 
 #### frontend:
 
@@ -259,13 +328,13 @@ prompts:
 
 - When submitting the form and the password and the confirm password don't match, an error message should be displayed.
 
-- Create a DTO class for the User model class. It should contain all User fields except password. Use it when sending User details through Rest endpoints. Update the related test, service and controller methods.
-
-- Create a Priority Enum. it should contain "LOW", "BASIC", "HIGH" and "CRITICAL" values. Add this as a property to the Task entity. Store its value as an ordinal in the db. Make it possible to use it to filter and sort tasks (add it to ALLOWED_SORT_FIELDS). update all related service methods and test cases. Create new test cases to test filtering and sorting with this property. Create Priority.ts and update Task.ts in a similar manner. In the editTask component, make it possible to edit this property. In taskList component, make it possible to filter and sort by priority. Also show the value of this field in the mat-table below.
+- Create CategoryComponent to list, create and delete categories. the style should be similar to TaskListComponent. Generate the .ts, .css and .html files.
 
 #### documentation:
 
 - In documentation.md, write documentation for authentication, user and task related endpoints, similar to the one I already wrote about the login endpoint.
+
+- Update documentation.md: API details are outdated. Also look for grammatical errors.
 
 ### ChatGpt GPT-5
 
