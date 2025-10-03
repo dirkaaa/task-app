@@ -1,5 +1,6 @@
 package com.matekoncz.task_manager.controller;
 
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.model.Category;
 import com.matekoncz.task_manager.service.category.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) throws CategoryNotFoundException {
         Category category = categoryService.getCategoryById(id);
         if (category == null) {
             return ResponseEntity.notFound().build();

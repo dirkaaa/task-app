@@ -4,6 +4,7 @@ import com.matekoncz.task_manager.exceptions.user.UserCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.exceptions.auth.WrongUsernameOrPasswordException;
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
@@ -36,6 +37,12 @@ public class DefaultExceptionHandler {
     @ResponseBody
     public ResponseEntity<Map<String, String>> handleTaskCanNotBeUpdatedException(TaskCanNotBeUpdatedException ex) {
         return buildResponse(HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> handleCategoryNotFoundException(CategoryNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(WrongUsernameOrPasswordException.class)

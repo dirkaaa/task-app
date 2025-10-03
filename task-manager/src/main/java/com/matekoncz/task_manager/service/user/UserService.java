@@ -10,6 +10,7 @@ import com.matekoncz.task_manager.repository.UserRepository;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,18 +25,21 @@ public class UserService {
     }
 
     public User createUser(User user) throws UserCanNotBeCreatedException, UserNameIsNotUniqueException {
+        validateUser(user);
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
         try {
-            getUserByUsername(user.getUsername());
-            throw new UserNameIsNotUniqueException();
-        } catch (UserNotFoundException e) {
-            validateUser(user);
-            String hashedPassword = passwordEncoder.encode(user.getPassword());
-            user.setPassword(hashedPassword);
             return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserNameIsNotUniqueException();
         }
     }
 
     private void validateUser(User user) throws UserCanNotBeCreatedException {
+        validateRequiredFields(user);
+    }
+
+    private void validateRequiredFields(User user) throws UserCanNotBeCreatedException {
         if (user.getUsername() == null || user.getUsername().isBlank() ||
                 user.getPassword() == null || user.getPassword().isBlank()) {
             throw new UserCanNotBeCreatedException();
@@ -63,6 +67,14 @@ public class UserService {
         }
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
     public UserDto toUserDto(User user) {
         return new UserDto(user.getId(), user.getUsername());
     }
@@ -71,11 +83,4 @@ public class UserService {
         return users.stream().map(this::toUserDto).toList();
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    public void deleteAll() {
-        userRepository.deleteAll();
-    }
 }

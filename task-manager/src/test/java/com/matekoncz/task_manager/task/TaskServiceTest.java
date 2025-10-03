@@ -2,6 +2,7 @@ package com.matekoncz.task_manager.task;
 
 import com.matekoncz.task_manager.model.Category;
 import com.matekoncz.task_manager.service.category.CategoryService;
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
@@ -76,7 +77,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionIfCategoryDoesNotExist() {
+    void shouldThrowExceptionIfCategoryDoesNotExist() throws CategoryNotFoundException {
         Category category = new Category("TestCat");
         category.setId(99L);
         Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
@@ -86,7 +87,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldCreateTaskWithValidCategory() throws TaskCanNotBeCreatedException {
+    void shouldCreateTaskWithValidCategory() throws TaskCanNotBeCreatedException, CategoryNotFoundException {
         Category category = new Category("TestCat");
         category.setId(1L);
         Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
@@ -99,7 +100,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldCreateTask() throws TaskCanNotBeCreatedException {
+    void shouldCreateTask() throws TaskCanNotBeCreatedException, CategoryNotFoundException {
         Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
                 Priority.BASIC, defaultCategory);
         Task savedTask = new Task(1L, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
@@ -133,7 +134,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldUpdateTask() throws TaskNotFoundException, UserNotFoundException, TaskCanNotBeUpdatedException {
+    void shouldUpdateTask() throws TaskNotFoundException, UserNotFoundException, TaskCanNotBeUpdatedException, CategoryNotFoundException {
         Task existingTask = new Task(1L, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),
                 Priority.BASIC, defaultCategory);
         Task updatedTask = new Task(1L, "new desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),

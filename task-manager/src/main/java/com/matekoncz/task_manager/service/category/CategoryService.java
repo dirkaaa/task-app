@@ -1,5 +1,6 @@
 package com.matekoncz.task_manager.service.category;
 
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.model.Category;
 import com.matekoncz.task_manager.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,9 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category getCategoryById(Long id) {
+    public Category getCategoryById(Long id) throws CategoryNotFoundException {
         Optional<Category> category = categoryRepository.findById(id);
-        return category.orElse(null);
+        return category.orElseThrow(CategoryNotFoundException::new);
     }
 
     public List<Category> getAllCategories() {

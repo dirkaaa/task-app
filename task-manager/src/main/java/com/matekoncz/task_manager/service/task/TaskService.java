@@ -4,9 +4,11 @@ import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.repository.TaskRepository;
 import com.matekoncz.task_manager.service.user.UserService;
 import com.matekoncz.task_manager.service.category.CategoryService;
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
+import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +45,33 @@ public class TaskService {
     }
 
     private void validateTask(Task task) throws TaskCanNotBeCreatedException {
-        if (task.getDescription() == null || task.getDescription().isBlank() || task.getStatus() == null
-                || task.getPriority() == null) {
+        validateRequiredFields(task);
+        try {
+            validateCreator(task);
+            validateCategory(task);
+        } catch (UserNotFoundException | CategoryNotFoundException e) {
             throw new TaskCanNotBeCreatedException();
         }
-        try {
-            userService.getUserById(task.getCreator().getId());
-            if (task.getAssignee() != null) {
-                userService.getUserById(task.getAssignee().getId());
+    }
+
+    private void validateCategory(Task task) throws CategoryNotFoundException, TaskCanNotBeCreatedException {
+        if (task.getCategory() != null) {
+            if (categoryService.getCategoryById(task.getCategory().getId()) == null) {
+                throw new TaskCanNotBeCreatedException();
             }
-            if (task.getCategory() != null) {
-                if (categoryService.getCategoryById(task.getCategory().getId()) == null) {
-                    throw new TaskCanNotBeCreatedException();
-                }
-            }
-        } catch (Exception e) {
+        }
+    }
+
+    private void validateCreator(Task task) throws UserNotFoundException {
+        userService.getUserById(task.getCreator().getId());
+        if (task.getAssignee() != null) {
+            userService.getUserById(task.getAssignee().getId());
+        }
+    }
+
+    private void validateRequiredFields(Task task) throws TaskCanNotBeCreatedException {
+        if (task.getDescription() == null || task.getDescription().isBlank() || task.getStatus() == null
+                || task.getPriority() == null) {
             throw new TaskCanNotBeCreatedException();
         }
     }

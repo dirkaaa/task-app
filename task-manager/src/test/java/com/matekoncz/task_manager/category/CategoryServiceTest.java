@@ -1,7 +1,7 @@
 package com.matekoncz.task_manager.category;
 
 import com.matekoncz.task_manager.service.category.CategoryService;
-
+import com.matekoncz.task_manager.exceptions.category.CategoryNotFoundException;
 import com.matekoncz.task_manager.model.Category;
 import com.matekoncz.task_manager.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ public class CategoryServiceTest {
     }
 
     @Test
-    void testGetCategoryById() {
+    void testGetCategoryById() throws CategoryNotFoundException {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category1));
         Category result = categoryService.getCategoryById(1L);
         assertEquals(category1, result);
