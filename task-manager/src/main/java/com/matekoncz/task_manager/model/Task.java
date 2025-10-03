@@ -2,6 +2,9 @@ package com.matekoncz.task_manager.model;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,6 +39,11 @@ public class Task {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Category category;
+
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private Priority priority;
@@ -50,7 +58,7 @@ public class Task {
     }
 
     public Task(Long id, String description, Status status, User assignee, User creator, LocalDate dueDate,
-            LocalDate createdAt, Priority priority) {
+            LocalDate createdAt, Priority priority, Category category) {
         this.id = id;
         this.description = description;
         this.status = status;
@@ -59,6 +67,7 @@ public class Task {
         this.dueDate = dueDate;
         this.createdAt = createdAt;
         this.priority = priority;
+        this.category = category;
     }
 
     public Long getId() {
@@ -123,5 +132,13 @@ public class Task {
 
     public void setPriority(Priority priority) {
         this.priority = priority;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

@@ -27,8 +27,6 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
     @Autowired
     private TaskService taskService;
 
-    private HttpHeaders headers;
-
     @BeforeEach
     void setUp() throws Exception {
         taskService.deleteAll();
@@ -63,7 +61,8 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         userService.createUser(new User(null, "user2", "pass2"));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<UserDto[]> response = restTemplate.exchange("/api/users/all", HttpMethod.GET, entity, UserDto[].class);
+        ResponseEntity<UserDto[]> response = restTemplate.exchange("/api/users/all", HttpMethod.GET, entity,
+                UserDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -75,16 +74,15 @@ public class UserControllerTest extends TaskManagerIntegrationTest {
         assertTrue(users.stream().anyMatch(u -> u.getUsername().equals("user2")));
     }
 
-        @Test
-        void shouldNotSerializePasswordInResponse() throws UserNotFoundException {
-            User user = new User(null, "jsonuser", "jsonpass");
-            HttpEntity<User> entity = new HttpEntity<>(user, headers);
-            ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/register", entity, UserDto.class);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertNotNull(response.getBody());
-            assertEquals("jsonuser", response.getBody().getUsername());
-            // No password field in UserDto, so nothing to check
-        }
+    @Test
+    void shouldNotSerializePasswordInResponse() throws UserNotFoundException {
+        User user = new User(null, "jsonuser", "jsonpass");
+        HttpEntity<User> entity = new HttpEntity<>(user, headers);
+        ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/register", entity, UserDto.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("jsonuser", response.getBody().getUsername());
+    }
 
     @Test
     void shouldDeserializePasswordFromRequest() throws UserNotFoundException {

@@ -6,6 +6,7 @@ import com.matekoncz.task_manager.model.User;
 import com.matekoncz.task_manager.service.task.SearchResult;
 import com.matekoncz.task_manager.service.task.TaskService;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
+import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody String taskJson)
-            throws IOException, TaskNotFoundException {
+            throws IOException, TaskNotFoundException, TaskCanNotBeUpdatedException {
         Task updatedTask = objectMapper.readValue(taskJson, Task.class);
         Task task = taskService.updateTask(id, updatedTask);
         return ResponseEntity.ok(task);

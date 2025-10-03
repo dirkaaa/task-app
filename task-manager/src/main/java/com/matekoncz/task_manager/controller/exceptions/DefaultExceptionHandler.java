@@ -5,6 +5,7 @@ import com.matekoncz.task_manager.exceptions.user.UserNameIsNotUniqueException;
 import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.exceptions.auth.WrongUsernameOrPasswordException;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
+import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,12 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(TaskCanNotBeCreatedException.class)
     @ResponseBody
     public ResponseEntity<Map<String, String>> handleTaskCannotBeCreatedException(TaskCanNotBeCreatedException ex) {
+        return buildResponse(HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
+    }
+
+    @ExceptionHandler(TaskCanNotBeUpdatedException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> handleTaskCanNotBeUpdatedException(TaskCanNotBeUpdatedException ex) {
         return buildResponse(HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
     }
 

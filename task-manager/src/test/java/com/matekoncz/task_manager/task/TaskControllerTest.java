@@ -5,7 +5,9 @@ import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 import com.matekoncz.task_manager.model.Priority;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
+import com.matekoncz.task_manager.model.Category;
 import com.matekoncz.task_manager.model.User;
+import com.matekoncz.task_manager.service.category.CategoryService;
 import com.matekoncz.task_manager.service.task.SearchResult;
 import com.matekoncz.task_manager.service.task.TaskService;
 import com.matekoncz.task_manager.service.user.Credentials;
@@ -32,15 +34,20 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
     @Autowired
     private UserService userService;
 
-    private HttpHeaders headers;
+    @Autowired
+    private CategoryService categoryService;
+
     private User creator;
     private User assignee;
     private List<Task> allTasks;
+    private Category workCategory;
+    private Category personalCategory;
 
     @BeforeEach
     void setUp() throws Exception {
         taskService.deleteAll();
         userService.deleteAll();
+        categoryService.deleteAll();
         User unsavedCreator = new User(null, "creator", "password");
         User unsavedAssignee = new User(null, "assignee", "password");
         Credentials credentials = Credentials.of(unsavedCreator);
@@ -52,8 +59,12 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
         headers = new HttpHeaders();
         headers.set("Cookie", loginResponse.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
 
+        workCategory = categoryService.createCategory(new Category("Work"));
+        personalCategory = categoryService.createCategory(new Category("Personal"));
+
         allTasks = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
+            Category cat = (i % 2 == 0) ? workCategory : personalCategory;
             Task t = new Task(
                     null,
                     "desc" + i,
@@ -62,27 +73,30 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
                     creator,
                     LocalDate.of(2025, 10, (i % 28) + 1),
                     LocalDate.of(2025, 9, (i % 28) + 1),
-                    Priority.values()[i % Priority.values().length]);
+                    Priority.values()[i % Priority.values().length],
+                    cat);
             allTasks.add(taskService.createTask(t));
         }
     }
 
     @Test
-    void shouldCreateTask() {
+    void shouldCreateTaskWithCategory() {
         Task task = new Task(null, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),
-                Priority.BASIC);
+                Priority.BASIC, workCategory);
         HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
         ResponseEntity<Task> response = restTemplate.postForEntity("/api/tasks", entity, Task.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getDescription(), is("desc"));
+        assertThat(response.getBody().getCategory().getName(), is("Work"));
     }
 
     @Test
-    void shouldUpdateTask() {
+    void shouldUpdateTaskCategory() {
         Task task = allTasks.get(0);
         task.setDescription("updated desc");
+        task.setCategory(personalCategory);
         HttpEntity<Task> entity = new HttpEntity<>(task, headers);
 
         ResponseEntity<Task> response = restTemplate.exchange("/api/tasks/" + task.getId(), HttpMethod.PUT, entity,
@@ -90,6 +104,19 @@ public class TaskControllerTest extends TaskManagerIntegrationTest {
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody().getDescription(), is("updated desc"));
+        assertThat(response.getBody().getCategory().getName(), is("Personal"));
+    }
+
+    void shouldFilterByCategory() {
+        Task filter = new Task();
+        filter.setCategory(workCategory);
+        HttpEntity<Task> entity = new HttpEntity<>(filter, headers);
+
+        ResponseEntity<SearchResult> response = restTemplate
+                .postForEntity("/api/tasks/all?offset=0&orderBy=&ascending=true", entity, SearchResult.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody().getTasks(), everyItem(hasProperty("category", hasProperty("name", is("Work")))));
     }
 
     @Test

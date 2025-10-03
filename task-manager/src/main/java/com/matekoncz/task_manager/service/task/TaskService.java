@@ -3,7 +3,9 @@ package com.matekoncz.task_manager.service.task;
 import com.matekoncz.task_manager.model.Task;
 import com.matekoncz.task_manager.repository.TaskRepository;
 import com.matekoncz.task_manager.service.user.UserService;
+import com.matekoncz.task_manager.service.category.CategoryService;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
+import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
 
 import java.util.ArrayList;
@@ -27,10 +29,12 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final UserService userService;
+    private final CategoryService categoryService;
 
-    public TaskService(TaskRepository taskRepository, UserService userService) {
+    public TaskService(TaskRepository taskRepository, UserService userService, CategoryService categoryService) {
         this.taskRepository = taskRepository;
         this.userService = userService;
+        this.categoryService = categoryService;
     }
 
     public Task createTask(Task task) throws TaskCanNotBeCreatedException {
@@ -48,6 +52,11 @@ public class TaskService {
             if (task.getAssignee() != null) {
                 userService.getUserById(task.getAssignee().getId());
             }
+            if (task.getCategory() != null) {
+                if (categoryService.getCategoryById(task.getCategory().getId()) == null) {
+                    throw new TaskCanNotBeCreatedException();
+                }
+            }
         } catch (Exception e) {
             throw new TaskCanNotBeCreatedException();
         }
@@ -58,15 +67,20 @@ public class TaskService {
                 .orElseThrow(TaskNotFoundException::new);
     }
 
-    public Task updateTask(Long id, Task updatedTask) throws TaskNotFoundException {
+    public Task updateTask(Long id, Task updatedTask) throws TaskNotFoundException, TaskCanNotBeUpdatedException {
         Task task = taskRepository.findById(id)
                 .orElseThrow(TaskNotFoundException::new);
         task.setDescription(updatedTask.getDescription());
         task.setStatus(updatedTask.getStatus());
         task.setAssignee(updatedTask.getAssignee());
-        task.setCreator(updatedTask.getCreator());
         task.setDueDate(updatedTask.getDueDate());
-        task.setCreatedAt(updatedTask.getCreatedAt());
+        task.setPriority(updatedTask.getPriority());
+        task.setCategory(updatedTask.getCategory());
+        try {
+            validateTask(task);
+        } catch (TaskCanNotBeCreatedException e) {
+            throw new TaskCanNotBeUpdatedException();
+        }
         return taskRepository.save(task);
     }
 

@@ -1,7 +1,11 @@
 package com.matekoncz.task_manager.task;
 
+import com.matekoncz.task_manager.model.Category;
+import com.matekoncz.task_manager.service.category.CategoryService;
 import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeCreatedException;
+import com.matekoncz.task_manager.exceptions.task.TaskCanNotBeUpdatedException;
 import com.matekoncz.task_manager.exceptions.task.TaskNotFoundException;
+import com.matekoncz.task_manager.exceptions.user.UserNotFoundException;
 import com.matekoncz.task_manager.model.Priority;
 import com.matekoncz.task_manager.model.Status;
 import com.matekoncz.task_manager.model.Task;
@@ -13,12 +17,13 @@ import com.matekoncz.task_manager.service.user.UserService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -28,8 +33,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
+    @Mock
+    private CategoryService categoryService;
 
     @Mock
     private TaskRepository taskRepository;
@@ -43,12 +50,15 @@ public class TaskServiceTest {
     private User creator;
     private User assignee;
     private List<Task> allTasks;
+    private Category defaultCategory;
 
     @BeforeEach
     void setUp() {
         creator = new User(1L, "creator", "password");
         assignee = new User(2L, "assignee", "password");
 
+        defaultCategory = new Category("Default");
+        defaultCategory.setId(1L);
         allTasks = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             Task t = new Task(
@@ -59,19 +69,44 @@ public class TaskServiceTest {
                     creator,
                     LocalDate.of(2025, 10, (i % 28) + 1),
                     LocalDate.of(2025, 9, (i % 28) + 1),
-                    Priority.values()[i % Priority.values().length]);
+                    Priority.values()[i % Priority.values().length],
+                    defaultCategory);
             allTasks.add(t);
         }
     }
 
     @Test
+    void shouldThrowExceptionIfCategoryDoesNotExist() {
+        Category category = new Category("TestCat");
+        category.setId(99L);
+        Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
+                category);
+        when(categoryService.getCategoryById(99L)).thenReturn(null);
+        assertThrows(TaskCanNotBeCreatedException.class, () -> taskService.createTask(task));
+    }
+
+    @Test
+    void shouldCreateTaskWithValidCategory() throws TaskCanNotBeCreatedException {
+        Category category = new Category("TestCat");
+        category.setId(1L);
+        Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
+                category);
+        when(categoryService.getCategoryById(1L)).thenReturn(category);
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        Task result = taskService.createTask(task);
+        assertNotNull(result);
+        assertEquals("desc", result.getDescription());
+    }
+
+    @Test
     void shouldCreateTask() throws TaskCanNotBeCreatedException {
         Task task = new Task(null, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
-                Priority.BASIC);
+                Priority.BASIC, defaultCategory);
         Task savedTask = new Task(1L, "desc", Status.NEW, null, assignee, LocalDate.now(), LocalDate.now(),
-                Priority.BASIC);
+                Priority.BASIC, defaultCategory);
 
         when(taskRepository.save(ArgumentMatchers.any(Task.class))).thenReturn(savedTask);
+        when(categoryService.getCategoryById(1L)).thenReturn(defaultCategory);
 
         Task result = taskService.createTask(task);
 
@@ -81,7 +116,8 @@ public class TaskServiceTest {
 
     @Test
     void shouldGetTaskById() throws TaskNotFoundException {
-        Task task = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC);
+        Task task = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
+                defaultCategory);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         Task result = taskService.getTaskById(1L);
@@ -97,14 +133,15 @@ public class TaskServiceTest {
     }
 
     @Test
-    void shouldUpdateTask() throws TaskNotFoundException {
-        Task existingTask = new Task(1L, "desc", null, assignee, null, LocalDate.now(), LocalDate.now(),
-                Priority.BASIC);
-        Task updatedTask = new Task(1L, "new desc", null, assignee, null, LocalDate.now(), LocalDate.now(),
-                Priority.BASIC);
+    void shouldUpdateTask() throws TaskNotFoundException, UserNotFoundException, TaskCanNotBeUpdatedException {
+        Task existingTask = new Task(1L, "desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC, defaultCategory);
+        Task updatedTask = new Task(1L, "new desc", Status.NEW, assignee, creator, LocalDate.now(), LocalDate.now(),
+                Priority.BASIC, defaultCategory);
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(existingTask)).thenReturn(updatedTask);
+        when(categoryService.getCategoryById(1L)).thenReturn(defaultCategory);
 
         Task result = taskService.updateTask(1L, updatedTask);
 
@@ -114,7 +151,8 @@ public class TaskServiceTest {
 
     @Test
     void shouldThrowTaskNotFoundExceptionWhenUpdatingNonexistentTask() {
-        Task updatedTask = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC);
+        Task updatedTask = new Task(1L, "desc", null, null, assignee, LocalDate.now(), LocalDate.now(), Priority.BASIC,
+                defaultCategory);
         when(taskRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(1L, updatedTask));
     }
