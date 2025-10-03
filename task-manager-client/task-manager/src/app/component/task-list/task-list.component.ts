@@ -18,6 +18,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { Priority } from '../../model/Priority';
+import { Category } from '../../model/Category';
+import { CategoryService } from '../../service/category.service';
 
 @Component({
   selector: 'app-task-list',
@@ -43,23 +45,18 @@ export class TaskListComponent implements OnInit {
   searchForm: FormGroup;
   users: User[] = [];
   tasks: Task[] = [];
+  categories: Category[] = [];
   statuses = Object.values(Status);
   priorities = Object.values(Priority);
   loading = false;
   offset = 0;
   numberOfResults = 0;
 
-  async populateDB() {
-    if (this.users.length > 0) {
-      await this.taskService.populateDB(this.users[0]);
-      await this.searchTasks();
-    }
-  }
-
   constructor(
     private fb: FormBuilder,
     private taskService: TaskService,
     private userService: UserService,
+    private categoryService: CategoryService,
     private router: Router
   ) {
     this.searchForm = this.fb.group({
@@ -71,12 +68,21 @@ export class TaskListComponent implements OnInit {
       description: [''],
       orderBy: [''],
       ascending: ['true'],
+      category: [null],
     });
   }
 
   async ngOnInit() {
     await this.searchTasks();
     this.users = await this.userService.getAllUsers();
+    this.categories = await this.categoryService.getEveryCategory();
+  }
+
+  async populateDB() {
+    if (this.users.length > 0) {
+      await this.taskService.populateDB(this.users[0]);
+      await this.searchTasks();
+    }
   }
 
   async searchTasks() {
@@ -96,6 +102,7 @@ export class TaskListComponent implements OnInit {
         this.searchForm.value.priority == ''
           ? null
           : this.searchForm.value.priority,
+      category: this.searchForm.value.category,
       description: this.searchForm.value.description,
       createdAt: '',
     };
@@ -115,9 +122,7 @@ export class TaskListComponent implements OnInit {
   }
 
   async deleteTask(id: number) {
-    console.log('Deleting task with id:', id);
     await this.taskService.deleteTask(id);
-    console.log('Task deleted, refreshing task list');
     await this.searchTasks();
   }
 
@@ -148,6 +153,7 @@ export class TaskListComponent implements OnInit {
       description: '',
       orderBy: '',
       ascending: ['true'],
+      category: null,
     });
     this.offset = 0;
     this.searchTasks();

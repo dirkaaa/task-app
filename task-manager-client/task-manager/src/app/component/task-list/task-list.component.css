@@ -1,7 +1,7 @@
-.task-list-container {
+.search-form {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-evenly;
   margin: 5px;
   padding: 5px;
   border-radius: 1rem;
@@ -13,7 +13,15 @@
   flex-direction: row;
   gap: 5px;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
 }
 
 .create-task-btn {
@@ -40,12 +48,16 @@
 .buttonContainer {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   gap: 10px;
   width: fit-content;
   padding: 10px;
   border-radius: 1rem;
   background-color: goldenrod;
+}
+
+.limited {
+  width: 160px;
 }
 
 .populate-db-btn {
@@ -56,4 +68,11 @@
   right: 10px;
   bottom: 60px;
   z-index: 101;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 5px;
 }

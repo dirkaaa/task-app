@@ -1,60 +1,80 @@
 <div class="task-list-container">
     <form [formGroup]="searchForm" (ngSubmit)="searchTasks()" class="search-form">
-        <div class="form-row">
-            <mat-form-field appearance="outline">
-                <mat-label>Assignee</mat-label>
-                <mat-select formControlName="assignee">
-                    <mat-option [value]="null">Any</mat-option>
-                    @for(user of users; track user) {
-                    <mat-option [value]="user">{{ user.username }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+        <div>
+            <div class="form-row">
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Assignee</mat-label>
+                    <mat-select formControlName="assignee">
+                        <mat-option [value]="null">Any</mat-option>
+                        @for(user of users; track user) {
+                        <mat-option [value]="user">{{ user.username }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
-                <mat-label>Creator</mat-label>
-                <mat-select formControlName="creator">
-                    <mat-option [value]="null">Any</mat-option>
-                    @for(user of users; track user) {
-                    <mat-option [value]="user">{{ user.username }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Creator</mat-label>
+                    <mat-select formControlName="creator">
+                        <mat-option [value]="null">Any</mat-option>
+                        @for(user of users; track user) {
+                        <mat-option [value]="user">{{ user.username }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
-                <mat-label>Due Date</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="dueDate">
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Category</mat-label>
+                    <mat-select formControlName="category">
+                        <mat-option [value]="null">Any</mat-option>
+                        @for(category of categories; track category) {
+                        <mat-option [value]="category">{{ category.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
-                <mat-label>Status</mat-label>
-                <mat-select formControlName="status">
-                    <mat-option value="">Any</mat-option>
-                    @for (status of statuses; track status) {
-                    <mat-option [value]="status">{{ status }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Due Date</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="dueDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
 
-            <mat-form-field appearance="outline">
-                <mat-label>Description</mat-label>
-                <input matInput formControlName="description" />
-            </mat-form-field>
+            </div>
+            <div class="form-row">
 
-            <mat-form-field appearance="outline">
-                <mat-label>Priority</mat-label>
-                <mat-select formControlName="priority">
-                    <mat-option value="">Any</mat-option>
-                    @for(priority of priorities; track priority){
-                    <mat-option [value]="priority">{{ priority }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status">
+                        <mat-option value="">Any</mat-option>
+                        @for (status of statuses; track status) {
+                        <mat-option [value]="status">{{ status }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Description</mat-label>
+                    <input matInput formControlName="description" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="limited">
+                    <mat-label>Priority</mat-label>
+                    <mat-select formControlName="priority">
+                        <mat-option value="">Any</mat-option>
+                        @for(priority of priorities; track priority){
+                        <mat-option [value]="priority">{{ priority }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <span class="limited buttons">
+                    <button mat-raised-button color="primary" type="submit" [disabled]="loading">Search</button>
+                    <button mat-raised-button color="secondary" (click)="clearFilter()">Clear</button>
+                </span>
+
+            </div>
         </div>
-        <div class="form-row">
+        <div class="flex-column">
             <span style="display: flex; gap: 5px;">
                 <mat-form-field appearance="outline">
                     <mat-label>Order by</mat-label>
@@ -71,11 +91,6 @@
                     <mat-radio-button value="false">Descending</mat-radio-button>
                 </mat-radio-group>
             </span>
-
-            <span style="display: flex; gap: 5px;">
-                <button mat-raised-button color="primary" type="submit" [disabled]="loading">Search</button>
-                <button mat-raised-button color="secondary" (click)="clearFilter()">Clear</button>
-            </span>
         </div>
     </form>
 </div>
@@ -89,6 +104,11 @@
     <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let task">{{ task.status }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="category">
+        <th mat-header-cell *matHeaderCellDef>Category</th>
+        <td mat-cell *matCellDef="let task">{{ task.category?.name || '-' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="assignee">
@@ -133,10 +153,10 @@
     </ng-container>
 
     <tr mat-header-row
-        *matHeaderRowDef="['description', 'status', 'priority', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete']">
+        *matHeaderRowDef="['description', 'status','category', 'priority', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete']">
     </tr>
     <tr mat-row style="font-size: 14px; height: 14px;"
-        *matRowDef="let row; columns: ['description', 'status', 'priority', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete'];">
+        *matRowDef="let row; columns: ['description', 'status','category', 'priority', 'assignee', 'creator', 'dueDate', 'createdAt', 'edit', 'delete'];">
     </tr>
 </table>
 <div class="centered">

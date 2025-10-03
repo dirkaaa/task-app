@@ -19,6 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { Priority } from '../../model/Priority';
+import { Category } from '../../model/Category';
+import { CategoryService } from '../../service/category.service';
 
 @Component({
   selector: 'app-edit-task',
@@ -40,6 +42,7 @@ import { Priority } from '../../model/Priority';
 export class EditTaskComponent implements OnInit {
   taskForm: FormGroup;
   users: User[] = [];
+  categories: Category[] = [];
   statuses = Object.values(Status);
   priorities = Object.values(Priority);
   editMode = false;
@@ -51,7 +54,8 @@ export class EditTaskComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private taskService: TaskService,
-    private userService: UserService
+    private userService: UserService,
+    private categoryService: CategoryService
   ) {
     this.taskForm = this.fb.group({
       description: ['', Validators.required],
@@ -61,11 +65,13 @@ export class EditTaskComponent implements OnInit {
       creator: [{ value: '', disabled: true }],
       dueDate: ['', Validators.required],
       createdAt: [''],
+      category: [null],
     });
   }
 
   async ngOnInit() {
     this.users = await this.userService.getAllUsers();
+    this.categories = await this.categoryService.getEveryCategory();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode = true;
@@ -79,6 +85,7 @@ export class EditTaskComponent implements OnInit {
         creator: task.creator?.username,
         dueDate: task.dueDate ? new Date(task.dueDate) : '',
         createdAt: task.createdAt,
+        category: task.category,
       });
     }
   }
@@ -98,6 +105,7 @@ export class EditTaskComponent implements OnInit {
       creator: this.creator ?? undefined,
       dueDate: this.formatLocalDate(formValue.dueDate),
       createdAt: formValue.createdAt,
+      category: formValue.category,
     };
     try {
       if (this.editMode && this.route.snapshot.paramMap.get('id')) {

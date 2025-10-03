@@ -10,6 +10,17 @@
             </mat-error>
             }
         </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+                <mat-option [value]="null">None</mat-option>
+                @for(category of categories; track category){
+                <mat-option [value]="category">{{ category.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
         <div class="form-row">
             <mat-form-field appearance="outline" class="limited">
                 <mat-label>Priority</mat-label>

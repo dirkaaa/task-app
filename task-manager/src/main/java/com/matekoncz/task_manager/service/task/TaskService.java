@@ -153,6 +153,10 @@ public class TaskService {
                 predicates.add(cb.like(cb.lower(root.get("description")), "%" + filter.getDescription() + "%"));
             }
 
+            if (filter.getCategory() != null) {
+                predicates.add(cb.equal(root.get("category"), filter.getCategory()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

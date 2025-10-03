@@ -3,6 +3,7 @@ import { TaskListComponent } from './component/task-list/task-list.component';
 import { EditTaskComponent } from './component/edit-task/edit-task.component';
 import { LoginComponent } from './component/login/login.component';
 import { SignUpComponent } from './component/sign-up/sign-up.component';
+import { CategoryComponent } from './component/category/category.component';
 
 export const routes: Routes = [
   { path: 'tasks', component: TaskListComponent },
@@ -10,4 +11,5 @@ export const routes: Routes = [
   { path: 'edit-task', component: EditTaskComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignUpComponent },
+  { path: 'categories', component: CategoryComponent },
 ];
